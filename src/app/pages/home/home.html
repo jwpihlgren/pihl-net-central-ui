@@ -1,0 +1,7 @@
+<button (click)="toggleLogin($event)">{{loggedIn() ? "Logout": "Login"}}</button>
+@if(loggedIn()) {
+ <app-logged-in></app-logged-in>
+}
+@else {
+<app-logged-out></app-logged-out>
+}
