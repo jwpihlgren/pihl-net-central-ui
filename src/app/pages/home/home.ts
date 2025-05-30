@@ -1,6 +1,7 @@
-import { Component, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
 import { LoggedIn } from './components/logged-in/logged-in';
 import { LoggedOut } from './components/logged-out/logged-out';
+import { Pollen } from '../../shared/services/pollen';
 
 @Component({
   selector: 'app-home',
@@ -9,6 +10,14 @@ import { LoggedOut } from './components/logged-out/logged-out';
   styleUrl: './home.css'
 })
 export class Home {
+
+  pollenService = inject(Pollen)
+  forecast
+
+  constructor() {
+    this.forecast = computed(() => this.pollenService.forecast.value())
+    this.pollenService.forecastByRegionId()
+  }
 
   loggedIn: WritableSignal<boolean> = signal(false)
 
