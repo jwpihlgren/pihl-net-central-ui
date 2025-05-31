@@ -1,4 +1,4 @@
-export class UrlBuilder<T = Record<string, any>, R = Record<string, any>> {
+export class UrlBuilder<T, R = never> {
   private baseUrl: string;
   private endpoint: string;
   private queryParams: Record<string, any> = {};

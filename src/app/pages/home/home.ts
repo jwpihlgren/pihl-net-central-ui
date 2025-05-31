@@ -1,7 +1,8 @@
-import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { LoggedIn } from './components/logged-in/logged-in';
 import { LoggedOut } from './components/logged-out/logged-out';
 import { Pollen } from '../../shared/services/pollen';
+import { ForecastPR } from '../../shared/models/pollenrapporten/schemas/forecast';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,7 @@ export class Home {
   forecast
 
   constructor() {
-    this.forecast = computed(() => this.pollenService.forecast.value())
+    this.forecast = this.pollenService.forecast
     this.pollenService.forecastByRegionId()
   }
 

@@ -1,30 +1,43 @@
-import { httpResource } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { httpResource, HttpResourceRef } from '@angular/common/http';
+import { computed, Injectable, signal } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import { UrlBuilder } from '../utils/url-builder';
 import { environment } from '../../../environments/environment.development';
 import { ForecastsParamsPR } from '../models/pollenrapporten/endpoints/forecasts-params';
+import { PaginatedDataForecastPR } from '../models/pollenrapporten/schemas/paginated-data-forecast';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Pollen {
 
-  regionId = signal<string | undefined>(undefined)
-  forecast = httpResource<any>(() => {
-    if (!this.regionId()) return
+  private _forecast: HttpResourceRef<PaginatedDataForecastPR | undefined>
 
-    type Optional = ForecastsParamsPR
-    type Required = Pick<ForecastsParamsPR, "region_id">
-    return UrlBuilder.createWithRequired<Optional, Required>(
-      environment.pollenrapporten.url,
-      environment.pollenrapporten.endpoints.forecast.path,
-      { region_id: this.regionId() })
-      .addParam("current", true)
-      .build()
-  })
+  regionId = signal<string | undefined>(undefined)
 
   constructor() {
+    this._forecast = this.initForecast()
+  }
+
+
+  get forecast() {
+    return computed(() => this._forecast!)
+  }
+
+  private initForecast(): HttpResourceRef<PaginatedDataForecastPR | undefined> {
+    return httpResource<PaginatedDataForecastPR>(() => {
+      if (!this.regionId()) return
+
+      type OptionalParams = ForecastsParamsPR
+      type RequiredParams = Required<Pick<ForecastsParamsPR, "region_id">>
+      return UrlBuilder.createWithRequired<OptionalParams, RequiredParams>(
+        environment.pollenrapporten.url,
+        environment.pollenrapporten.endpoints.forecast.path,
+        { region_id: this.regionId()! })
+        .addParam("current", true)
+        .build()
+    })
+
   }
 
   forecastByRegionId(regionId: string = "2a2a2a2a-2a2a-4a2a-aa2a-2a2a2a303a38", options?: Partial<ForecastByIdOptions>) {
