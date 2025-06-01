@@ -2,7 +2,6 @@ import { Component, computed, inject, Signal, signal, WritableSignal } from '@an
 import { LoggedIn } from './components/logged-in/logged-in';
 import { LoggedOut } from './components/logged-out/logged-out';
 import { Pollen } from '../../shared/services/pollen';
-import { ForecastPR } from '../../shared/models/pollenrapporten/schemas/forecast';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +15,7 @@ export class Home {
   forecast
 
   constructor() {
-    this.forecast = this.pollenService.forecast
+    this.forecast = computed(() => this.pollenService.forecast)
     this.pollenService.forecastByRegionId()
   }
 

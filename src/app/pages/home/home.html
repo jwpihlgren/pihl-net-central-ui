@@ -7,7 +7,16 @@
 }
 
 
-@if(forecast().hasValue()) {
-    @let f = forecast().value()!;
-    {{f.items[0].id}}
+@if(forecast() === undefined) {
+  No data
+ }
+ @else if(forecast()!.isLoading()) {
+      Loading
+   }
+@else if (forecast()!.error()) {
+    Error {{forecast()!.error()}}
   }
+@else {
+  @let f = forecast()!;
+  {{f.value()!.items[0].id}}
+}

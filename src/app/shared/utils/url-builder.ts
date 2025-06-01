@@ -1,7 +1,7 @@
 export class UrlBuilder<T, R = never> {
   private baseUrl: string;
   private endpoint: string;
-  private queryParams: Record<string, any> = {};
+  private queryParams: Record<string, string> = {};
 
   private constructor(
     baseUrl: string,
@@ -45,12 +45,22 @@ export class UrlBuilder<T, R = never> {
     return this;
   }
 
+  getParamsAsRecord(): Record<string, string> {
+    return structuredClone(this.queryParams)
+  }
+
   build(): string {
+    const url = new URL(this.endpoint, this.baseUrl);
+    return url.toString();
+  }
+
+  buildWithQueryParams(): string {
     const url = new URL(this.endpoint, this.baseUrl);
     Object.entries(this.queryParams).forEach(([key, value]) => {
       url.searchParams.set(key, value);
     });
     return url.toString();
   }
+
 }
 

@@ -1,5 +1,5 @@
-import { httpResource, HttpResourceRef } from '@angular/common/http';
-import { computed, Injectable, signal } from '@angular/core';
+import { httpResource, HttpResourceOptions, HttpResourceRef, HttpResourceRequest } from '@angular/common/http';
+import { computed, Injectable, Signal, signal } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import { UrlBuilder } from '../utils/url-builder';
 import { environment } from '../../../environments/environment.development';
@@ -11,43 +11,46 @@ import { PaginatedDataForecastPR } from '../models/pollenrapporten/schemas/pagin
 })
 export class Pollen {
 
-  private _forecast: HttpResourceRef<PaginatedDataForecastPR | undefined>
 
+  forecast?: HttpResourceRef<PaginatedDataForecastPR | undefined>
   regionId = signal<string | undefined>(undefined)
 
   constructor() {
-    this._forecast = this.initForecast()
   }
 
+  private initForecast() {
 
-  get forecast() {
-    return computed(() => this._forecast!)
+    if(!this.regionId()) return undefined
+    type OptionalParams = ForecastsParamsPR
+    type RequiredParams = Required<Pick<ForecastsParamsPR, "region_id">>
+    const url = UrlBuilder.createWithRequired<OptionalParams, RequiredParams>(
+      environment.pollenrapporten.url,
+      environment.pollenrapporten.endpoints.forecast,
+      { region_id: this.regionId()! })
+
+    const request: HttpResourceRequest = {
+      url: url.build(),
+      method: "GET",
+      params: {region_id: this.regionId()!},
+      reportProgress: true,
+      transferCache: true,
+    }
+    const options: HttpResourceOptions<PaginatedDataForecastPR, unknown> = {
+      parse: this.forecastParser,
+      defaultValue: undefined
+    }
+    return httpResource(() => {console.log("inner"); return request}, options)
   }
 
-  private initForecast(): HttpResourceRef<PaginatedDataForecastPR | undefined> {
-    return httpResource<PaginatedDataForecastPR>(() => {
-      if (!this.regionId()) return
-
-      type OptionalParams = ForecastsParamsPR
-      type RequiredParams = Required<Pick<ForecastsParamsPR, "region_id">>
-      return UrlBuilder.createWithRequired<OptionalParams, RequiredParams>(
-        environment.pollenrapporten.url,
-        environment.pollenrapporten.endpoints.forecast.path,
-        { region_id: this.regionId()! })
-        .addParam("current", true)
-        .build()
-    })
-
+  private forecastParser(data: unknown): PaginatedDataForecastPR {
+    return data as PaginatedDataForecastPR
   }
 
   forecastByRegionId(regionId: string = "2a2a2a2a-2a2a-4a2a-aa2a-2a2a2a303a38", options?: Partial<ForecastByIdOptions>) {
-
-    const config: ForecastByIdOptions = {
-      ...options
-    }
-
     this.regionId.set(regionId)
-
+    if(!this.forecast) {
+      this.forecast = this.initForecast()
+    }
   }
 
   regions(): Observable<any> {
