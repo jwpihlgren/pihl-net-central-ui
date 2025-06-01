@@ -1,5 +1,5 @@
 import { httpResource, HttpResourceOptions, HttpResourceRef, HttpResourceRequest } from '@angular/common/http';
-import { computed, Injectable, Signal, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import { UrlBuilder } from '../utils/url-builder';
 import { environment } from '../../../environments/environment.development';
@@ -18,38 +18,48 @@ export class Pollen {
   constructor() {
   }
 
-  private initForecast() {
+  private requestForecast() {
 
-    if(!this.regionId()) return undefined
+    if (!this.regionId()) return undefined
     type OptionalParams = ForecastsParamsPR
     type RequiredParams = Required<Pick<ForecastsParamsPR, "region_id">>
     const url = UrlBuilder.createWithRequired<OptionalParams, RequiredParams>(
       environment.pollenrapporten.url,
       environment.pollenrapporten.endpoints.forecast,
       { region_id: this.regionId()! })
+    url.addParam("current", true)
 
     const request: HttpResourceRequest = {
       url: url.build(),
       method: "GET",
-      params: {region_id: this.regionId()!},
+      params: url.getParamsAsRecord(),
       reportProgress: true,
       transferCache: true,
     }
-    const options: HttpResourceOptions<PaginatedDataForecastPR, unknown> = {
+    const requestOptions: HttpResourceOptions<PaginatedDataForecastPR, unknown> = {
       parse: this.forecastParser,
-      defaultValue: undefined
     }
-    return httpResource(() => {console.log("inner"); return request}, options)
+    return httpResource(() => request, requestOptions)
   }
 
   private forecastParser(data: unknown): PaginatedDataForecastPR {
+    const d = data as PaginatedDataForecastPR
+
+    const daily = d.items.map(item => {
+      const grouped = Object.groupBy(item.levelSeries, (level) => {
+
+        return level.time
+      })
+      return grouped
+    })
+    console.log(daily)
     return data as PaginatedDataForecastPR
   }
 
-  forecastByRegionId(regionId: string = "2a2a2a2a-2a2a-4a2a-aa2a-2a2a2a303a38", options?: Partial<ForecastByIdOptions>) {
+  forecastByRegionId(regionId: string = "2a2a2a2a-2a2a-4a2a-aa2a-2a2a2a303a38", options?: ForecastsParamsPR) {
     this.regionId.set(regionId)
-    if(!this.forecast) {
-      this.forecast = this.initForecast()
+    if (!this.forecast) {
+      this.forecast = this.requestForecast()
     }
   }
 
@@ -68,11 +78,3 @@ export class Pollen {
 
 }
 
-interface ForecastByIdOptions {
-  pollenId?: string
-  current?: boolean
-  offset?: number
-  limit?: number
-  startDate?: string
-  endDate?: string
-}

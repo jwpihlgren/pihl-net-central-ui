@@ -18,5 +18,26 @@
   }
 @else {
   @let f = forecast()!;
-  {{f.value()!.items[0].id}}
+  <table>
+  <thead>
+  <tr>
+  <td>Id</td>
+  <td>RegionId</td>
+  <td>Text</td>
+  <td>startDate</td>
+  <td>endDate</td>
+  <td>levelSeries0time</td>
+  </tr>
+  </thead>
+  @for(row of f.value()!.items; track $index){
+  <tr>
+    <td>{{row.id}}</td>
+    <td>{{row.regionid}}</td>
+    <td>{{row.text}}</td>
+    <td>{{row.startDate}}</td>
+    <td>{{row.endDate}}</td>
+    <td>{{row.levelSeries[0].time}}</td>
+  </tr>
+    }
+  </table>
 }
