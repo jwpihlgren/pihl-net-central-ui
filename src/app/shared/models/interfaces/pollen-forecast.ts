@@ -7,14 +7,14 @@ export interface PollenForecast extends Paginated {
     generalDescription: string
     startDate: string
     endDate: string
-    dailyForecasts: Record<string, DailyForecast>
+    dailyForecasts: { date: string, pollenLevels: PollenLevels[] }[]
   }[]
 }
 
 
-interface DailyForecast {
+export interface PollenLevels {
   id: string
-  name?: string
+  name: string
   level: number
   time: string
 }

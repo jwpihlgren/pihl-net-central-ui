@@ -17,27 +17,26 @@
     Error {{forecast()!.error()}}
   }
 @else {
-  @let f = forecast()!;
-  <table>
-  <thead>
-  <tr>
-  <td>Id</td>
-  <td>RegionId</td>
-  <td>Text</td>
-  <td>startDate</td>
-  <td>endDate</td>
-  <td>levelSeries0time</td>
-  </tr>
-  </thead>
-  @for(row of f.value()!.items; track $index){
-  <tr>
-    <td>{{row.id}}</td>
-    <td>{{row.regionid}}</td>
-    <td>{{row.text}}</td>
-    <td>{{row.startDate}}</td>
-    <td>{{row.endDate}}</td>
-    <td>{{row.levelSeries[0].time}}</td>
-  </tr>
-    }
-  </table>
-}
+  @let forecasts = forecast().value()!;
+    @for(f of forecasts.forecastPeriods; track $index) {
+        <table>
+        <caption> Forecast for {{f.regionId}} {{f.startDate}}-{{f.endDate}}</caption>
+        <thead>
+        <tr>
+        <th>Date</th>
+        @for(p of f.dailyForecasts[0].pollenLevels ;track $index) {
+            <th>{{p.name}}</th>
+          }
+        </tr>
+        @for(period of f.dailyForecasts; track $index) {
+        <tr>
+        <td>{{period.date}}</td>
+        @for(levels of period.pollenLevels; track $index){
+            <td>{{levels.level}}</td>
+          }
+        </tr>
+          }
+        </thead>
+        </table>
+      }
+  }
