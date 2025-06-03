@@ -1,0 +1,56 @@
+@defer(when forecast() !== undefined) {
+@let f = forecast().forecastPeriods[0];
+<header class="flex col gap-md">
+  <h6> Pollenrapport - {{f.regionId}}</h6>
+  <span class="description">
+    @if(showLongDescription()) {
+    {{f.generalDescription}}
+    }
+    @else {
+    {{f.generalDescription.substring(0, descriptionMaxLength).concat("...")}}
+    }
+  </span>
+  @if(f.generalDescription.length > descriptionMaxLength) {
+  <button class="ternary" (click)="toggleLongDescription()">{{toggleButtonText()}}</button>
+  }
+
+</header>
+
+<div class="button-group | flex row">
+  @for(df of f.dailyForecasts; track $index){
+  <button [ngClass]="{'active': selectedIndex() === $index}" (click)="select($index)" class="ternary">
+    {{df.date}}
+  </button>
+  }
+</div>
+<div class="pollen-levels | flex col gap-md">
+  @for(level of currentDailyForecast().pollenLevels ; track $index){
+  <div class="pollen-level | flex col a-center gap-sm">
+    <div class="pollen-level-gauge | flex row" [attr.data-pollen-level]=level.level>
+      @for(indicator of [].constructor(level.level); track $index) {
+      <span class="pollen-level-indicator"></span>
+      }
+    </div>
+    <span class="pollen-level-name | helper-text">{{level.name}}</span>
+  </div>
+  }
+</div>
+<footer class="flex row gap-lg wrap">
+  <div class="pollen-level-legend | flex col gap-sm grow">
+    <div class="legend-text | flex row j-between">
+      <span class="helper-text">Låga halter</span>
+      <span class="helper-text">Mycket höga halter</span>
+    </div>
+    <div class="legend-bars">
+      <span class="legend-level-low"></span>
+      <span class="legend-level-medium"></span>
+      <span class="legend-level-high"></span>
+      <span class="legend-level-extreme"></span>
+    </div>
+  </div>
+  <div class="meta-information | flex col a-end grow">
+    <span class="helper-text">Upphovsman:
+    </span>
+  </div>
+</footer>
+}

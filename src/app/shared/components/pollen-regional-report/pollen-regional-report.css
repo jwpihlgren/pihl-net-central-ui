@@ -1,0 +1,232 @@
+
+/*
+  * Component API
+  */
+:host {
+  --color-pollen-low: var(--green-500, #32d2ac);
+  --color-pollen-medium: var(--yellow-500, #f8c03f);
+  --color-pollen-high: var(--red-300, #f19d8b);
+  --color-pollen-extreme: var(--red-500, #de5353);
+  --color-pollen-error: #c4c4c4;
+
+  --min-width-pollen: 360px;
+
+  --padding-pollen-level-gauge: var(--extra-small, 2px);
+  --radius-pollen-level-gauge: var(--small, 8px);
+  --border-width-pollen-level-gauge: 2px;
+  --max-width-pollen-level-gauge: 3rem;
+  --height-pollen-level-gauge: calc(1rem + (var(--padding-pollen-level-gauge) * 2) + (var(--border-width-pollen-level-gauge) * 2));
+
+  --margin-pollen-level-indicator: var(--extra-small, 2px);
+  --radius-pollen-level-indicator: calc(var(--radius-pollen-level-gauge) / 2);
+  --height-pollen-level-indicator: 1rem;
+
+  --height-pollen-legend-bar: 8px;
+
+  --number-of-indicator-in-gauge: 8;
+
+  --color-background-button-active: var(--pnc-sys-color-inverse-primary, blue);
+}
+
+:host {
+  padding: var(--medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--medium);
+  min-width: 458px;
+  max-width: 1080px;
+}
+
+.active {
+  background: var(--color-background-button-active);
+
+}
+.description {
+  max-width: 60ch;
+  margin: 0 auto;
+  display: block;
+}
+
+
+.pollen-levels {
+  display: flex;
+  gap: var(--spacing-medium);
+}
+
+/*
+ * Pollen level gauge settings
+ * */
+.pollen-level-gauge[data-pollen-level] {
+  --color-pollen: var(--color-pollen-error);
+}
+
+.pollen-level-gauge[data-pollen-level="0"] {
+  --color-pollen: var(--color-pollen-low);
+}
+
+.pollen-level-gauge[data-pollen-level="1"] {
+  --color-pollen: var(--color-pollen-low);
+}
+
+.pollen-level-gauge[data-pollen-level="2"] {
+  --color-pollen: var(--color-pollen-medium);
+}
+
+.pollen-level-gauge[data-pollen-level="3"] {
+  --color-pollen: var(--color-pollen-medium);
+}
+
+.pollen-level-gauge[data-pollen-level="4"] {
+  --color-pollen: var(--color-pollen-high);
+}
+
+.pollen-level-gauge[data-pollen-level="5"] {
+  --color-pollen: var(--color-pollen-high);
+}
+
+.pollen-level-gauge[data-pollen-level="6"] {
+  --color-pollen: var(--color-pollen-extreme);
+}
+
+.pollen-level-gauge[data-pollen-level="7"] {
+  --color-pollen: var(--color-pollen-extreme);
+}
+
+.pollen-level-gauge {
+  border: var(--border-width-pollen-level-gauge) solid var(--color-pollen);
+  border-radius: var(--radius-pollen-level-gauge);
+  padding: var(--padding-pollen-level-gauge);
+  width: 100%;
+  min-height: var(--height-pollen-level-gauge)
+}
+
+/*
+ * Settings for each indicator bar in the pollen-level-gauge
+ * */
+.pollen-level-indicator {
+  display: inherit;
+  max-width: calc(100% / var(--number-of-indicator-in-gauge));
+  max-height: var(--height-pollen-level-indicator);
+  height: var(--height-pollen-level-indicator);
+  flex-grow: 1;
+  background: var(--color-pollen);
+}
+
+.pollen-level-indicator:nth-of-type(even) {
+  margin-inline-end: var(--margin-pollen-level-indicator);
+}
+
+.pollen-level-indicator:nth-of-type(1) {
+  border-top-left-radius: var(--radius-pollen-level-indicator);
+  border-bottom-left-radius: var(--radius-pollen-level-indicator);
+}
+
+.pollen-level-indicator:nth-of-type(8) {
+  border-top-right-radius: var(--radius-pollen-level-indicator);
+  border-bottom-right-radius: var(--radius-pollen-level-indicator);
+  margin-inline-end: 0;
+}
+
+.pollen-level-name {
+  text-align: center;
+}
+
+@media (min-width: 1080px) {
+  .pollen-levels {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .pollen-level {
+    max-width: var(--max-width-pollen-level-gauge);
+    overflow-wrap: anywhere;
+  }
+
+  .pollen-level-gauge {
+    min-width: var(--max-width-pollen-level-gauge);
+    max-width: var(--max-width-pollen-level-gauge);
+    height: calc((var(--height-pollen-level-indicator) * var(--number-of-indicator-in-gauge)) + (5 * var(--margin-pollen-level-indicator)));
+    flex-direction: column;
+    transform: rotate(180deg);
+  }
+
+  .pollen-level-indicator {
+    width: 100%;
+    max-width: initial;
+  }
+
+  .pollen-level-indicator:nth-of-type(even) {
+    margin: 0;
+    margin-block-end: var(--margin-pollen-level-indicator);
+  }
+
+  .pollen-level-indicator:nth-of-type(1) {
+    border-radius: 0;
+    border-top-left-radius: var(--radius-pollen-level-indicator);
+    border-top-right-radius: var(--radius-pollen-level-indicator);
+  }
+
+  .pollen-level-indicator:nth-of-type(8) {
+    margin: 0;
+    margin-block-end: 0;
+    border-radius: 0;
+    border-bottom-left-radius: var(--radius-pollen-level-indicator);
+    border-bottom-right-radius: var(--radius-pollen-level-indicator);
+  }
+
+  .pollen-level-name {
+    text-wrap: balance;
+  }
+
+}
+
+/*
+ * Footer
+ * */
+
+/*
+ * Settings for the pollen level legend
+ * */
+
+.pollen-level-legend {
+  min-width: var(--min-width-pollen);
+}
+
+.legend-bars {
+  height: var(--height-pollen-legend-bar);
+  border-radius: var(--pill);
+  width: 100%;
+  display: flex;
+}
+
+.legend-bars span {
+  height: 100%;
+  flex-grow: 1;
+}
+
+.legend-level-low {
+  background: var(--color-pollen-low);
+  border-top-left-radius: var(--pill);
+  border-bottom-left-radius: var(--pill);
+}
+
+.legend-level-medium {
+  background: var(--color-pollen-medium);
+}
+
+.legend-level-high {
+  background: var(--color-pollen-high);
+}
+
+.legend-level-extreme {
+  background: var(--color-pollen-extreme);
+  border-top-right-radius: var(--pill);
+  border-bottom-right-radius: var(--pill);
+}
+
+/*
+ * Settings for meta information
+ */
+.meta-information {
+  min-width: var(--min-width-pollen);
+}

@@ -23,7 +23,6 @@ export class Storage {
   }
 
   setLocalItemWithTTL<T>(key: string, ttl: number, value: T): void {
-
     const now = new Date().toISOString()
     this.setLocalItem<TTL<T>>(key, { date: now, ttl: ttl, value: value })
   }
