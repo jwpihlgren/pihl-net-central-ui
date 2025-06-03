@@ -22,10 +22,30 @@ export class Storage {
     }
   }
 
+  setLocalItemWithTTL<T>(key: string, ttl: number, value: T): void {
+
+    const now = new Date().toISOString()
+    this.setLocalItem<TTL<T>>(key, { date: now, ttl: ttl, value: value })
+  }
+
   getLocalItem<T>(key: string): T | null {
     const value = localStorage.getItem(key)
-    return value ? JSON.parse(value) : null
+    if (!value) return null
+    const parsedValue = JSON.parse(value)
+    if (Object.hasOwn(parsedValue, "ttl")) {
+      if (this.hasTTLPassed(parsedValue.ttl, parsedValue.date)) { return null }
+      return parsedValue.value
+    }
+    if (Object.hasOwn(parsedValue, "ttl")) {
+      return parsedValue.value
+    }
+    return parsedValue
   }
+
+  private hasTTLPassed(date: string, ttl: number): boolean {
+    return Date.parse(date) + ttl < Date.parse(new Date().toISOString())
+  }
+
 
   removeLocalItem(key: string): void {
     localStorage.removeItem(key)
@@ -35,7 +55,7 @@ export class Storage {
     localStorage.clear()
   }
 
-  setSessionItem<T>(key: string, value: any): void {
+  setSessionItem<T>(key: string, value: T): void {
     try {
       const jsonValue = JSON.stringify(value)
       sessionStorage.setItem(key, jsonValue)
@@ -51,9 +71,23 @@ export class Storage {
     }
   }
 
+  setSessionItemWithTTL<T>(key: string, ttl: number, value: T,): void {
+    const now = new Date().toISOString()
+    this.setSessionItem<TTL<T>>(key, { date: now, ttl: ttl, value: value })
+  }
+
   getSessionItem<T>(key: string): T | null {
     const value = sessionStorage.getItem(key)
-    return value ? JSON.parse(value) : null
+    if (!value) return null
+    const parsedValue = JSON.parse(value)
+    if (Object.hasOwn(parsedValue, "ttl")) {
+      if (this.hasTTLPassed(parsedValue.ttl, parsedValue.date)) { return null }
+      return parsedValue.value
+    }
+    if (Object.hasOwn(parsedValue, "ttl")) {
+      return parsedValue.value
+    }
+    return parsedValue
   }
 
   removeSessionItem(key: string): void {
@@ -63,4 +97,11 @@ export class Storage {
   clearSessionStorage(): void {
     sessionStorage.clear()
   }
+}
+
+
+interface TTL<T> {
+  ttl: number
+  date: string
+  value: T
 }

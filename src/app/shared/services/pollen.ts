@@ -39,21 +39,17 @@ export class Pollen {
           .addParam("current", true)
         return this.requestPollenTypes().pipe(
           switchMap(pollenType => {
-            type StoredPollenForecast = { ttl: number, date: string, forecast: PollenForecast }
-            const storedForecast = this.storage.getSessionItem<StoredPollenForecast>(environment.storage.pollenForecastPrefix)
+            const storedForecast = this.storage.getSessionItem<PollenForecast>(environment.storage.pollenForecastPrefix)
             if (storedForecast) {
-              const endDate = Date.parse(storedForecast.date) + storedForecast.ttl
-              const now = Date.parse(new Date().toISOString())
-              if (endDate > now) {
-                return of(storedForecast.forecast)
-              }
+              return of(storedForecast)
             }
             return this.http.get<PaginatedDataForecastPR>(url.buildWithQueryParams()).pipe(
               map(data => {
                 const forecast: PollenForecast = new PRPollenForecast(data, pollenType)
-                const ttlInMs = 1000 * 60 * 60 * 2
-                const forecastToStore = { ttl: ttlInMs, date: new Date().toISOString(), forecast: forecast }
-                this.storage.setSessionItem<StoredPollenForecast>(`${environment.storage.pollenForecastPrefix}`, forecastToStore)
+                this.storage.setSessionItemWithTTL<PollenForecast>(
+                  `${environment.storage.pollenForecastPrefix}`,
+                  environment.storage.pollenForecastTTLInMs,
+                  forecast)
                 return forecast
               })
             )

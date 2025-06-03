@@ -9,9 +9,10 @@ export const environment = {
       pollenCount: "pollen-count"
     }
   },
-   storage: {
+  storage: {
     pollenTypePrefix: "pollen-types",
-    pollenForecastPrefix: "pollen-forecast"
+    pollenForecastPrefix: "pollen-forecast",
+    pollenForecastTTLInMs: 1000 * 60 * 60 * 2
   }
 }
 
