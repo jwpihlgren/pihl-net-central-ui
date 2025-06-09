@@ -5,6 +5,6 @@ import { RegionPR } from "./region";
 export interface PaginatedDataRegion {
   _meta: PaginationMetaPR
   _links: PaginationLinkPR[]
-  items: RegionPR
+  items: RegionPR[]
 
 }

@@ -1,6 +1,7 @@
 import { PollenLevels, PollenForecast } from "../interfaces/pollen-forecast";
 import { PaginatedDataForecastPR } from "../pollenrapporten/schemas/paginated-data-forecast";
 import { PaginatedDataPollenType } from "../pollenrapporten/schemas/paginated-data-pollen-type";
+import { PaginatedDataRegion } from "../pollenrapporten/schemas/paginated-data-region";
 
 export class PRPollenForecast implements PollenForecast {
   pageSize?: number | undefined;
@@ -10,12 +11,12 @@ export class PRPollenForecast implements PollenForecast {
   forecastPeriods
 
 
-  constructor(raw: PaginatedDataForecastPR, pollenIdMap: PaginatedDataPollenType | undefined) {
+  constructor(raw: PaginatedDataForecastPR, pollenIdMap: PaginatedDataPollenType, pollenRegions: PaginatedDataRegion) {
     this.pageSize = raw._meta.limit
     this.totalPages = this.calculateTotalPages(raw._meta.totalRecords, raw._meta.limit)
     this.currentPage = this.calculateCurrentPage(raw._meta.offset, raw._meta.limit)
     this.totalResults = raw._meta.totalRecords
-    this.forecastPeriods = this.mapData(raw, pollenIdMap)
+    this.forecastPeriods = this.mapData(raw, pollenIdMap, pollenRegions)
   }
 
 
@@ -31,7 +32,7 @@ export class PRPollenForecast implements PollenForecast {
     return Math.floor(offset / limit)
   }
 
-  private mapData(raw: PaginatedDataForecastPR, pollenMap: PaginatedDataPollenType | undefined): PollenForecast["forecastPeriods"] {
+  private mapData(raw: PaginatedDataForecastPR, pollenMap: PaginatedDataPollenType, pollenRegions: PaginatedDataRegion): PollenForecast["forecastPeriods"] {
     type ForecastPeriod = PollenForecast["forecastPeriods"][0]
     const forecastPeriods: ForecastPeriod[] = raw.items.map(i => {
       const dailyLevels: PollenLevels[] = i.levelSeries.map(l => {
@@ -44,11 +45,11 @@ export class PRPollenForecast implements PollenForecast {
       })
 
       const dailyForecasts: Partial<Record<string, PollenLevels[]>> = Object.groupBy(dailyLevels, ({ time }) => time)
-      console.log(dailyForecasts)
 
       const period: ForecastPeriod = {
         id: i.id || "",
-        regionId: i.regionid || "",
+        regionId: i.regionId || "",
+        regionName: pollenRegions.items.find(region => region.id === i.regionId)?.name ?? "",
         startDate: i.startDate,
         endDate: i.endDate,
         generalDescription: i.text,

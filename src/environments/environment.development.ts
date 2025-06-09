@@ -11,6 +11,7 @@ export const environment = {
   },
   storage: {
     pollenTypePrefix: "pollen-types",
+    pollenRegionPrefix: "pollen-regions",
     pollenForecastPrefix: "pollen-forecast",
     pollenForecastTTLInMs: 1000 * 60 * 60 * 2
   }

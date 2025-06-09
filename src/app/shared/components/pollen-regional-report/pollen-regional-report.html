@@ -1,7 +1,7 @@
 @defer(when forecast() !== undefined) {
 @let f = forecast().forecastPeriods[0];
 <header class="flex col gap-md">
-  <h6> Pollenrapport - {{f.regionId}}</h6>
+  <h6> Pollenrapport - {{f.regionName}}</h6>
   <span class="description">
     @if(showLongDescription()) {
     {{f.generalDescription}}

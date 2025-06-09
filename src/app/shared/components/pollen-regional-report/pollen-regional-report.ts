@@ -17,8 +17,8 @@ export class PollenRegionalReport {
   currentDailyForecast = computed(() => {
     let forecasts = this.forecast()
     forecasts.forecastPeriods[0].dailyForecasts = forecasts.forecastPeriods[0].dailyForecasts.filter(f => new Date(f.date).getDate() >= new Date().getDate())
-    console.log(forecasts)
-    return forecasts
+    console.log(forecasts.forecastPeriods[0])
+    return forecasts.forecastPeriods[0].dailyForecasts[this.selectedIndex()]
   })
 
   select(index: number) {

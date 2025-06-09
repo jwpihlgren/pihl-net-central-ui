@@ -2,7 +2,7 @@ import { PollenLevelPR } from "./pollen-level"
 
 export interface ForecastPR {
   id: string | null,
-  regionid: string | null,
+  regionId: string | null,
   startDate: string
   endDate: string
   text: string

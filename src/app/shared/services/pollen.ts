@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, ResourceRef, signal } from '@angular/core';
-import { EMPTY, map, Observable, of, switchMap } from 'rxjs';
+import { EMPTY, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { UrlBuilder } from '../utils/url-builder';
 import { environment } from '../../../environments/environment.development';
 import { ForecastsParamsPR } from '../models/pollenrapporten/endpoints/forecasts-params';
@@ -10,6 +10,7 @@ import { PaginatedDataPollenType } from '../models/pollenrapporten/schemas/pagin
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Storage } from './storage';
 import { PollenForecast } from '../models/interfaces/pollen-forecast';
+import { PaginatedDataRegion } from '../models/pollenrapporten/schemas/paginated-data-region';
 
 @Injectable({
   providedIn: 'root'
@@ -37,15 +38,18 @@ export class Pollen {
           environment.pollenrapporten.endpoints.forecast,
           { region_id: regionId })
           .addParam("current", true)
-        return this.requestPollenTypes().pipe(
-          switchMap(pollenType => {
+        return forkJoin({
+          pollenTypes: this.requestPollenTypes(),
+          pollenRegions: this.requestPollenRegions()
+        }).pipe(
+          switchMap(combined => {
             const storedForecast = this.storage.getSessionItem<PollenForecast>(environment.storage.pollenForecastPrefix)
             if (storedForecast) {
               return of(storedForecast)
             }
             return this.http.get<PaginatedDataForecastPR>(url.buildWithQueryParams()).pipe(
               map(data => {
-                const forecast: PollenForecast = new PRPollenForecast(data, pollenType)
+                const forecast: PollenForecast = new PRPollenForecast(data, combined.pollenTypes, combined.pollenRegions)
                 this.storage.setSessionItemWithTTL<PollenForecast>(
                   `${environment.storage.pollenForecastPrefix}`,
                   environment.storage.pollenForecastTTLInMs,
@@ -73,22 +77,25 @@ export class Pollen {
       )
   }
 
-  forecastByRegionId(regionId: string = "2a2a2a2a-2a2a-4a2a-aa2a-2a2a2a303a38", options?: ForecastsParamsPR) {
-    this.regionId.set(regionId)
+  forecastByRegionId(id: string = "2a2a2a2a-2a2a-4a2a-aa2a-2a2a2a303a38") {
+    this.regionId.set(id)
   }
 
-  regions(): Observable<any> {
-    return of([])
+  private requestPollenRegions(): Observable<PaginatedDataRegion> {
+    const storedPollenRegions = this.storage.getSessionItem<PaginatedDataRegion>(environment.storage.pollenRegionPrefix)
+    if(storedPollenRegions) return of (storedPollenRegions)
+    return this.http.get<PaginatedDataRegion>(UrlBuilder.create(
+      environment.pollenrapporten.url,
+      environment.pollenrapporten.endpoints.regions
+    ).build()).pipe(
+        map(data => {
+          this.storage.setSessionItem<PaginatedDataRegion>(environment.storage.pollenRegionPrefix, data)
+          return data
+        })
+      )
   }
 
-  regionByName(name: string) {
-    return this.regions().pipe(
-      map(data => {
-        const regionMatch = (data as any[]).find(region => name === region.name)
-        return regionMatch
-      })
-    )
-  }
+
 
 }
 

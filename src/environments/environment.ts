@@ -8,5 +8,11 @@ export const environment = {
       pollenLevelDefinitions: "pollen-level-definitions",
       pollenCount: "pollen-count"
     }
+  },
+  storage: {
+    pollenTypePrefix: "pollen-types",
+    pollenRegionPrefix: "pollen-regions",
+    pollenForecastPrefix: "pollen-forecast",
+    pollenForecastTTLInMs: 1000 * 60 * 60 * 2
   }
 }

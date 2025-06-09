@@ -4,6 +4,7 @@ export interface PollenForecast extends Paginated {
   forecastPeriods: {
     id: string
     regionId: string
+    regionName: string
     generalDescription: string
     startDate: string
     endDate: string
