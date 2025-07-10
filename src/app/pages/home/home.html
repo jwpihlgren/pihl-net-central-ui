@@ -7,38 +7,15 @@
 }
 
 
-@if(forecast() === undefined) {
-  No data
- }
- @else if(forecast()!.isLoading()) {
+@if(forecastResource.status() === "loading") {
       Loading
+ }
+ @else if(forecastResource.status() === "error") {
+    Error {{forecastResource.error()}}
    }
-@else if (forecast()!.error()) {
-    Error {{forecast()!.error()}}
+@else if (forecastResource.hasValue() && forecastResource.value === undefined) {
+    No forecast
   }
 @else {
-  @let forecasts = forecast().value()!;
-    @for(f of forecasts.forecastPeriods; track $index) {
-        <table>
-        <caption> Forecast for {{f.regionId}} {{f.startDate}}-{{f.endDate}}</caption>
-        <thead>
-        <tr>
-        <th>Date</th>
-        @for(p of f.dailyForecasts[0].pollenLevels ;track $index) {
-            <th>{{p.name}}</th>
-          }
-        </tr>
-        @for(period of f.dailyForecasts; track $index) {
-        <tr>
-        <td>{{period.date}}</td>
-        @for(levels of period.pollenLevels; track $index){
-            <td>{{levels.level}}</td>
-          }
-        </tr>
-          }
-        </thead>
-        </table>
-      }
-
-      <app-pollen-regional-report [forecast]="forecasts"></app-pollen-regional-report>
+  <app-pollen-regional-report [forecast]="forecastResource.value()!"></app-pollen-regional-report>
   }

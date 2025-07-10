@@ -1,3 +1,4 @@
+import { DateHelper } from "../../utils/date-helper";
 import { PollenLevels, PollenForecast } from "../interfaces/pollen-forecast";
 import { PaginatedDataForecastPR } from "../pollenrapporten/schemas/paginated-data-forecast";
 import { PaginatedDataPollenType } from "../pollenrapporten/schemas/paginated-data-pollen-type";
@@ -58,6 +59,9 @@ export class PRPollenForecast implements PollenForecast {
           return {date: k, pollenLevels: v!.sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)}
         })
       }
+      period.dailyForecasts = period.dailyForecasts.filter(df => {
+        return DateHelper.lte(new Date(), new Date(df.date))
+      })
       return period
     })
     return forecastPeriods

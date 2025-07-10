@@ -1,4 +1,3 @@
-@defer(when forecast() !== undefined) {
 @let f = forecast().forecastPeriods[0];
 <header class="flex col gap-md">
   <h6> Pollenrapport - {{f.regionName}}</h6>
@@ -24,7 +23,7 @@
   }
 </div>
 <div class="pollen-levels | flex col gap-md">
-  @for(level of currentDailyForecast().pollenLevels ; track $index){
+  @for(level of f.dailyForecasts[selectedIndex()].pollenLevels ; track $index){
   <div class="pollen-level | flex col a-center gap-sm">
     <div class="pollen-level-gauge | flex row" [attr.data-pollen-level]=level.level>
       @for(indicator of [].constructor(level.level); track $index) {
@@ -53,4 +52,3 @@
     </span>
   </div>
 </footer>
-}
