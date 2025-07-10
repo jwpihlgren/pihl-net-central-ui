@@ -10,21 +10,21 @@
     }
   </span>
   @if(f.generalDescription.length > descriptionMaxLength) {
-  <button class="ternary" (click)="toggleLongDescription()">{{toggleButtonText()}}</button>
+  <button class="btn btn-outline btn-primary" (click)="toggleLongDescription()">{{toggleButtonText()}}</button>
   }
 
 </header>
 
-<div class="button-group | flex row">
+<div class="button-group">
   @for(df of f.dailyForecasts; track $index){
-  <button [ngClass]="{'active': selectedIndex() === $index}" (click)="select($index)" class="ternary">
+  <button class="btn btn-accent" [ngClass]="{'btn-primary': selectedIndex()! === $index}" (click)="select($index)">
     {{df.date}}
   </button>
   }
 </div>
 <div class="pollen-levels | flex col gap-md">
-  @for(level of f.dailyForecasts[selectedIndex()].pollenLevels ; track $index){
-  <div class="pollen-level | flex col a-center gap-sm">
+  @for(level of f.dailyForecasts[selectedIndex()!].pollenLevels; track $index){
+  <div class="pollen-level">
     <div class="pollen-level-gauge | flex row" [attr.data-pollen-level]=level.level>
       @for(indicator of [].constructor(level.level); track $index) {
       <span class="pollen-level-indicator"></span>

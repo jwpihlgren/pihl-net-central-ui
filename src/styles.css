@@ -1,9 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import "tailwindcss";
+@plugin "daisyui";
 
 :root {
 
@@ -346,31 +343,6 @@ img {
   object-fit: cover;
 }
 
-
-.button {
-  height: var(--button-height, 2.5rem);
-  min-width: 8rem;
-  border-radius: var(--button-radii, 9999px);
-  cursor: pointer;
-  padding-inline: var(--spacing-medium);
-  font-size: var(--fs-label-medium);
-  font-weight: var(--fw-label-medium);
-  font-family: var(--ff-body);
-  letter-spacing: var(--letter-spacing-label-medium);
-}
-
-.button--primary {
-  background: var(--clr-accent);
-  color: var(--clr-on-accent);
-  border: none;
-}
-
-.button--secondary {
-  background: none;
-  color: var(--clr-primary);
-  border: 2px solid var(--clr-primary);
-
-}
 
 a {
   color: var(--clr-on-surface-accent);

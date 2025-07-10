@@ -37,10 +37,6 @@
   max-width: 1080px;
 }
 
-.active {
-  background: var(--color-background-button-active);
-
-}
 .description {
   max-width: 60ch;
   margin: 0 auto;
@@ -51,6 +47,10 @@
 .pollen-levels {
   display: flex;
   gap: var(--spacing-medium);
+}
+
+.pollen-level {
+
 }
 
 /*
@@ -140,6 +140,11 @@
   .pollen-level {
     max-width: var(--max-width-pollen-level-gauge);
     overflow-wrap: anywhere;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: flex-start;
+    gap: var(--spacing-small);
   }
 
   .pollen-level-gauge {
@@ -229,4 +234,10 @@
  */
 .meta-information {
   min-width: var(--min-width-pollen);
+}
+
+
+.button-group {
+  display: flex;
+  gap: var(--spacing-medium);
 }
