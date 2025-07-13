@@ -27,6 +27,8 @@ export class DateHelper {
     const [thenyear, thenMonth, thenDay] = [date.getFullYear(), date.getMonth(), date.getDate()]
     return new Date(thenyear, thenMonth, thenDay)
   }
+
+
 }
 
 
