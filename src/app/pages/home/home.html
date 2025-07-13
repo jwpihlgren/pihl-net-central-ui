@@ -1,5 +1,4 @@
-<button class="btn btn-primary" (click)="toggleLogin($event)">{{loggedIn() ? "Logout": "Login"}}</button>
-@if(loggedIn()) {
+@if(auth.session()) {
  <app-logged-in></app-logged-in>
 }
 @else {
@@ -7,15 +6,4 @@
 }
 
 
-@if(forecastResource.status() === "loading") {
-      Loading
- }
- @else if(forecastResource.status() === "error") {
-    Error {{forecastResource.error()}}
-   }
-@else if (forecastResource.hasValue() && forecastResource.value === undefined) {
-    No forecast
-  }
-@else {
-  <app-pollen-regional-report [forecast]="forecastResource.value()!"></app-pollen-regional-report>
-  }
+

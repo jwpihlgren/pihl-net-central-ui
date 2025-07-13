@@ -1,1 +1,14 @@
-<p>logged-in works!</p>
+<div class="card bg-base-100 p-8">
+@if(forecastResource.status() === "loading") {
+Loading
+}
+@else if(forecastResource.status() === "error") {
+Error {{forecastResource.error()}}
+}
+@else if (forecastResource.hasValue() && forecastResource.value === undefined) {
+No forecast
+}
+@else {
+<app-pollen-regional-report [forecast]="forecastResource.value()!"></app-pollen-regional-report>
+}
+</div>
