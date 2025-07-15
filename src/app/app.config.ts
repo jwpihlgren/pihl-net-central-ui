@@ -19,7 +19,7 @@ export const appConfig: ApplicationConfig = {
       },
       httpInterceptor: {
         allowedList: [
-          { uri: `${environment.vercel.url}*` }
+          { uri: `${environment.vercel.uri}*` }
         ]
       }
     }),
