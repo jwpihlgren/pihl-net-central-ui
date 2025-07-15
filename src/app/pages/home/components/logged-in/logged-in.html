@@ -11,4 +11,18 @@ No forecast
 @else {
 <app-pollen-regional-report [forecast]="forecastResource.value()!"></app-pollen-regional-report>
 }
+
+
+@if(hassTemperatureResource.status() === "loading") {
+    Loading
+  }
+@else if (hassTemperatureResource.status() === "error") {
+    Error {{hassTemperatureResource.error()}}
+}
+@else if(hassTemperatureResource.hasValue() && hassTemperatureResource.value === undefined) {
+    No temperature
+  }
+  @else {
+    {{hassTemperature()}}
+  }
 </div>
