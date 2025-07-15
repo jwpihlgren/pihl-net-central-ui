@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from './shared/services/auth.service';
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-root',
@@ -12,11 +13,14 @@ export class App {
   protected title = 'pihl-net-central-ui';
   protected auth = inject(AuthService)
 
-  loggedIn = signal(false)
+  loggedIn = toSignal(this.auth.user$)
 
 
-  toggleLogin(event: Event): void {
-    this.auth.session() ? this.auth.logout() : this.auth.login()
+  logout() {
+    this.auth.logout({
+      logoutParams: {
+      }
+    })
   }
 
 }

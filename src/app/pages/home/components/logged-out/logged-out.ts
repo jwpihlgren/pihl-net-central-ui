@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-logged-out',
@@ -7,5 +8,8 @@ import { Component } from '@angular/core';
   styleUrl: './logged-out.css'
 })
 export class LoggedOut {
-
+  protected auth = inject(AuthService)
+  signIn() {
+    this.auth.loginWithRedirect()
+  }
 }
