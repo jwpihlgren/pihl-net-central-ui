@@ -1,4 +1,4 @@
-export interface WeatherForecastResponse {
+export interface SMHIWeatherForecastResponse {
   approvedTime: Date
   referenceTime: Date
   geometry: {
@@ -10,27 +10,31 @@ export interface WeatherForecastResponse {
       ]
     ]
   },
-  timeSeries: [
-    {
-      validTime: Date,
-      parameters: {
-        name: ParameterName,
-        levelType: "hl" | "hmsl",
-        level: number,
-        unit: keyof typeof wUnits | "code" | "category",
-        values: number[]
-      }[],
-    }]
+  timeSeries: SMHIForecastTimeSerie[]
 }
 
-export interface WeatherParameters {
-  parameter: Parameter[]
+
+export interface SMHIForecastTimeSerie {
+  validTime: Date,
+  parameters: SMHIForecastTimeSerieParameter[]
 }
 
-type ParameterName = "t" | "wd" | "ws" | "gust" | "r" | "msl" | "vis" | "tstm" | "tcc_mean" | "lcc_mean" | "mcc_mean" | "hcc_mean" | "pmean" | "pmin" | "pmax" | "pmedian" | "spp" | "pcat" | "Wsymb2" | "tp"
+export interface SMHIForecastTimeSerieParameter {
+  name: SMHIParameterName,
+  levelType: "hl" | "hmsl",
+  level: number,
+  unit: keyof typeof wUnits | "code" | "category",
+  values: number[]
+}
+
+export interface SMHIWeatherParameters {
+  parameter: SMHIParameter[]
+}
+
+export type SMHIParameterName = "t" | "wd" | "ws" | "gust" | "r" | "msl" | "vis" | "tstm" | "tcc_mean" | "lcc_mean" | "mcc_mean" | "hcc_mean" | "pmean" | "pmin" | "pmax" | "pmedian" | "spp" | "pcat" | "Wsymb2" | "tp"
 
 
-const wUnits: Record<string, string> = {
+export const wUnits = {
   "cel": "C",
   "degree": "degree",
   "m/s": "m/s",
@@ -45,7 +49,7 @@ const wUnits: Record<string, string> = {
 
 export const wPcats = ["No precipitation", "Snow", "Snow and rain", "Rain", "Drizzle", "Freezing rain", "Freezing drizzle"] as const
 
-export const wLevelTypes: Record<string, string> = {
+export const wLevelTypes = {
   "hl": "Hight above ground level",
   "hmsl": "Hight above sea level"
 } as const
@@ -78,16 +82,17 @@ export const wWsymb2: Record<number, string> = {
   25: "Light snowfall",
   26: "Moderate snowfall",
   27: "Heavy snowfall"
-};
+} as const
 
 
-export type Parameter = {
-  name: ParameterName
+
+export type SMHIParameter = {
+  name: SMHIParameterName
   shortName: string
   description: string
   levelType: string
   level: number
-  unit: string,
+  unit: keyof typeof wUnits,
   missingValue: number
 }
 
