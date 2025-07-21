@@ -62,7 +62,7 @@
               "buildTarget": "pihl-net-central-ui:build:production"
             },
             "development": {
-              "buildTarget": "pihl-net-central-ui:build:development"
+              "buildTarget": "pihl-net-central-ui:build:development",
             }
           },
           "defaultConfiguration": "development"

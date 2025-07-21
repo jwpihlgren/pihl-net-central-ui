@@ -11,7 +11,7 @@ export class SmhiWeatherForecast implements WeatherForecast {
   days: WeatherForecastDay[]
 
   constructor(raw: SMHIWeatherForecastResponse) {
-    const timeSeriesGroupedByDate: Partial<Record<string, SMHIForecastTimeSerie[]>> = Object.groupBy(raw.timeSeries, ({ validTime }) => validTime.toISOString())
+    const timeSeriesGroupedByDate: Partial<Record<string, SMHIForecastTimeSerie[]>> = Object.groupBy(raw.timeSeries, ({ validTime }) => validTime.toString())
 
     this.issuedTime = raw.referenceTime
     this.coordinates = [{ lat: raw.geometry.coordinates[0][0], lon: raw.geometry.coordinates[0][1] }]

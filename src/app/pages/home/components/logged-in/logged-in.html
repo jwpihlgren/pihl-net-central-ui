@@ -26,3 +26,35 @@ No forecast
     {{hassTemperature()}}
   }
 </div>
+
+
+@if(weatherForecastResource.status() === "loading") {
+  Loading
+}
+@else if(weatherForecastResource.status() === "error") {
+  Error {{weatherForecastResource.error()}}
+}
+@else  if (weatherForecastResource.hasValue() && weatherForecastResource.value === undefined) {
+  No weather forecast
+}
+@else {
+  @let w = weatherForecastResource.value()!;
+
+  <table>
+  <thead>
+      <tr>
+        @for( h of w.dailyHeaders; track $index) {
+        <th>
+
+    {{h}}
+        </th>
+        }
+      </tr>
+    </thead>
+    @for(r of w.days; track $index) {
+    <tr>
+      @let [day, symbol, temp, wind, percipitation] = ...r.parameters;
+      </tr>
+  }
+  </table>
+  }
