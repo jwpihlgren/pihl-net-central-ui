@@ -1,36 +1,29 @@
 import { SMHIForecastTimeSerie, SMHIForecastTimeSerieParameter, SMHIParameterName, SMHIWeatherForecastResponse } from "../smhi/weather-forecast-response.interface";
-import { WeatherForecast, WeatherForecastCoordinates, WeatherForecastDay, WeatherForecastDayParameter, WeatherForecastHourParameter } from "../weather-forecast.interface";
+import { WeatherForecast, WeatherForecastCoordinates, WeatherForecastDailyTable, WeatherForecastDay, WeatherForecastHourlyTable } from "../weather-forecast.interface";
 
 export class SmhiWeatherForecast implements WeatherForecast {
   issuedTime: Date
   regionName: string
   coordinates: WeatherForecastCoordinates[]
-  dailyHeaders = ["Day", "", "L/H", "Wind", "Percipitation"]
-  hourlyHeaders = ["Hour", "Weather", "Percipitation", "Wind", "Feels like", "Humidity", "Airpressure", "Visibility"]
 
   days: WeatherForecastDay[]
 
   constructor(raw: SMHIWeatherForecastResponse) {
-    const timeSeriesGroupedByDate: Partial<Record<string, SMHIForecastTimeSerie[]>> = Object.groupBy(raw.timeSeries, ({ validTime }) => validTime.toString())
+    const timeSeriesGroupedByDate: Partial<Record<string, SMHIForecastTimeSerie[]>> = Object.groupBy(raw.timeSeries, ({ validTime }) => {
+      const date = new Date(validTime)
+      const year = date.getFullYear()
+      const month = date.getMonth()
+      const day = date.getDate()
+      return new Date(`${year}-${month}-${day}`).toString()
+    })
 
     this.issuedTime = raw.referenceTime
     this.coordinates = [{ lat: raw.geometry.coordinates[0][0], lon: raw.geometry.coordinates[0][1] }]
     this.regionName = ""
     this.days = []
     Object.entries(timeSeriesGroupedByDate).forEach(([k, v]) => {
-      if (v) { this.mapTimeSeries(k, v) }
+      if (v) { this.days.push(this.mapTimeSeries(k, v)) }
     })
-
-    try {
-      if (this.dailyHeaders.length !== this.days[0].parameters.length) throw new Error("Daily headers do not match daily params")
-      if (this.hourlyHeaders.length !== this.days[0].hours[0].length) throw new Error("Hourly headers do not match hourly params")
-    }
-    catch (error) {
-      if (error instanceof Error) {
-        console.log(`${error.message}`)
-      }
-      console.log(error)
-    }
   }
 
   mapTimeSeries(date: string, timeSeries: SMHIForecastTimeSerie[]): WeatherForecastDay {
@@ -43,7 +36,9 @@ export class SmhiWeatherForecast implements WeatherForecast {
     return day
   }
 
-  generateDailyParameters(timeSeries: SMHIForecastTimeSerie[]): WeatherForecastDayParameter {
+  generateDailyParameters(timeSeries: SMHIForecastTimeSerie[]): WeatherForecastDailyTable {
+
+    const dailyHeaders = { day: "day", symbol: "", percipitation: "L/H", wind: "wind", visibility: "visibility", temp: "temperature" }
     const groupedParams: Record<SMHIParameterName, SMHIForecastTimeSerieParameter[]> = timeSeries.reduce((acc, cur) => {
       cur.parameters.forEach(p => acc[p.name] ? acc[p.name].push(p) : acc[p.name] = [p])
       return acc
@@ -59,28 +54,57 @@ export class SmhiWeatherForecast implements WeatherForecast {
     const countOfSymbolValue = groupedParams.Wsymb2.map(p => p.values[0]).reduce((acc, cur) => {
       acc.symbolCount[cur] ?
         acc.symbolCount[cur] += 1 :
-        acc.symbolCount[cur] = 1
+        acc.symbolCount[cur] = 1;
+      if (acc.symbolCount[cur] > (acc.symbolCount[acc.max] ?? 0)) acc.max = cur
       return acc
     }, { symbolCount: {} as Record<number, number>, max: 0 })
     const symbol = countOfSymbolValue.symbolCount[countOfSymbolValue.max]
     const day = new Date(timeSeries[0].validTime)
 
-    const parameters: WeatherForecastDayParameter = [
-      { day: day },
-      { symbol: symbol },
-      { minTemp: minTemp, maxTemp: maxTemp, unit: groupedParams.t[0].unit },
-      { windDirection: windDirection, windSpeed: windSpeed, windGust: windGust },
-      { minPercipitation: minPercipitation, maxPercipitaiton: maxPercipitation }
-    ]
+    const parameters: WeatherForecastDailyTable = {
+      headers: dailyHeaders,
+      rows: {
+        day: day,
+        symbol: symbol,
+        temp: { min: minTemp, max: maxTemp, unit: groupedParams.t[0].unit },
+        wind: { direction: this.compassDirection(windDirection), speed: windSpeed, gust: windGust, unit: groupedParams.ws[0].unit },
+        percipitation: { min: minPercipitation, max: maxPercipitation, unit: groupedParams.pmin[0].unit }
+      }
+    }
 
     return parameters
   }
 
-  generateHourlyParameters(t: SMHIForecastTimeSerie[]): WeatherForecastHourParameter[] {
+  generateHourlyParameters(t: SMHIForecastTimeSerie[]): WeatherForecastHourlyTable[] {
     return t.map(t => this.mapHours(t))
   }
 
-  mapHours(h: SMHIForecastTimeSerie): WeatherForecastHourParameter {
+  private compassDirection(degrees: number) {
+    if (degrees >= 360 - 22.5 || degrees <= 22.5) return "N"
+    else if (degrees <= 22.5 * 3) return "NE"
+    else if (degrees <= 22.5 * 5) return "E"
+    else if (degrees <= 22.5 * 7) return "SE"
+    else if (degrees <= 22.5 * 9) return "S"
+    else if (degrees <= 22.5 * 11) return "SW"
+    else if (degrees <= 22.5 * 13) return "W"
+    else if (degrees <= 22.5 * 15) return "NW"
+    throw new Error(`${degrees} is out of bounds of 0 an 360`)
+  }
+
+
+  mapHours(h: SMHIForecastTimeSerie): WeatherForecastHourlyTable {
+
+    const hourlyHeaders = {
+      hour: "hour",
+      symbol: "weather",
+      percipitation: "percipitation",
+      wind: "wind",
+      feelsLike: "feels like",
+      humidity: "humidity",
+      airpressure: "airpressure",
+      visibility: "visibility",
+      temp: "Temperature"
+    }
     const temp = h.parameters.find(p => p.name === "t")!
     const windDirection = h.parameters.find(p => p.name === "wd")!
     const windSpeed = h.parameters.find(p => p.name === "ws")!
@@ -92,17 +116,20 @@ export class SmhiWeatherForecast implements WeatherForecast {
     const humidity = h.parameters.find(p => p.name === "r")!
     const feelsLike = this.calculateFeelslike(temp.values[0], humidity.values[0], windSpeed.values[0])
 
-    const parameters: WeatherForecastHourParameter = [
-      { hour: new Date(h.validTime) },
-      { symbol: symbol.values[0] },
-      { temp: temp.values[0], unit: temp.unit },
-      { windDirection: windDirection.values[0], windSpeed: windSpeed.values[0], windGust: windGust.values[0] },
-      { percipitation: percipitation.values[0] },
-      { feelsLike: feelsLike },
-      { humidity: humidity.values[0] },
-      { airpressure: airPressure.values[0] },
-      { visibility: visibility.values[0] },
-    ]
+    const parameters: WeatherForecastHourlyTable = {
+      headers: hourlyHeaders,
+      rows: {
+        hour: new Date(h.validTime),
+        symbol: symbol.values[0],
+        temp: { value: temp.values[0], unit: temp.unit },
+        wind: { direction: this.compassDirection(windDirection.values[0]), speed: windSpeed.values[0], gust: windGust.values[0], unit: windSpeed.unit },
+        percipitation: percipitation.values[0],
+        feelsLike: feelsLike,
+        humidity: humidity.values[0],
+        airpressure: airPressure.values[0],
+        visibility: visibility.values[0],
+      }
+    }
 
     return parameters
   }

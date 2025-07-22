@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { SMHIWeatherForecastResponse } from '../models/smhi/weather-forecast-response.interface';
-import { WeatherForecast } from '../models/weather-forecast.interface';
 import { httpResource } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { SmhiWeatherForecast } from '../models/classes/smhi-weather-forecast';
+import { WeatherForecast } from '../models/weather-forecast.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,10 @@ export class WeatherService {
   }
 
   private parseData(data: SMHIWeatherForecastResponse): WeatherForecast {
-    return new SmhiWeatherForecast(data)
+    console.log(data)
+    const parsed = new SmhiWeatherForecast(data)
+    console.log(parsed)
+    return parsed
   }
 
 
@@ -27,5 +30,5 @@ export class WeatherService {
 }
 
 
- //https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/58/lat/16/data.json
- //https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/16/lat/58/data.json
+//https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/58/lat/16/data.json
+//https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/16/lat/58/data.json
