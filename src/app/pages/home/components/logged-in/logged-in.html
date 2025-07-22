@@ -39,28 +39,68 @@ No weather forecast
 }
 @else {
 @let w = weatherForecastResource.value()!;
-<table class="table">
-  <thead>
-    @let h = w.days[0].parameters.headers;
-    <tr>
-      <th>{{h.day}}</th>
-      <th>{{h.symbol}}</th>
-      <th>{{h.temp}}</th>
-      <th>{{h.wind}}</th>
-      <th>{{h.percipitation}}</th>
-    </tr>
-  </thead>
-  @for(d of w.days; track $index) {
-  <tr>
+<div class="h-96 overflow-x-auto">
+  <table class="table">
+    <thead>
+      @let h = w.days[0].parameters.headers;
+      <tr>
+        <th>{{h.day}}</th>
+        <th>{{h.symbol}}</th>
+        <th>{{h.temp}}</th>
+        <th>{{h.wind}}</th>
+        <th>{{h.percipitation}}</th>
+      </tr>
+    </thead>
+    @for(d of w.days; track $index) {
     @let r = d.parameters.rows;
-    <td>{{r.day | date}}</td>
-    <td>{{r.symbol}}</td>
-    <td>{{r.temp.min | number: "1.1-1"}}-{{r.temp.max | number: "1.1-1"}} {{r.temp.unit}}</td>
-    <td>{{r.wind.direction}} {{r.wind.speed | number: "1.1-1"}} ({{r.wind.gust | number: "1.1-1"}}) {{r.wind.unit}}</td>
-    <td>{{r.percipitation.min | number: "1.1-1"}}-{{r.percipitation.max | number: "1.1-1"}} {{r.percipitation.unit}}
-    </td>
-  </tr>
+    <tr [attr.data-master-row.id]=" $index" (click)="toggleDetailsRow($event)" class="hover:bg-base-300">
+      <td>{{r.day | date}}</td>
+      <td>{{r.symbol}}</td>
+      <td>{{r.temp.min | number: "1.1-1"}}-{{r.temp.max | number: "1.1-1"}} {{r.temp.unit}}</td>
+      <td>{{r.wind.direction}} {{r.wind.speed | number: "1.1-1"}} ({{r.wind.gust | number: "1.1-1"}}) {{r.wind.unit}}
+      </td>
+      <td>{{r.percipitation.min | number: "1.1-1"}}-{{r.percipitation.max | number: "1.1-1"}} {{r.percipitation.unit}}
+      </td>
+    </tr>
+    <tr [attr.data-detail-row-id]="$index">
+      <td [colSpan]="5">
+        <table class="table table-xs">
+          <thead>
+            @let hh = d.hours[0].headers;
+            <tr>
+              <td>{{hh.hour}}</td>
+              <td>{{hh.symbol}}</td>
+              <td>{{hh.temp}}</td>
+              <td>{{hh.feelsLike}}</td>
+              <td>{{hh.wind}}</td>
+              <td>{{hh.percipitation}}</td>
+              <td>{{hh.humidity}}</td>
+              <td>{{hh.airpressure}}</td>
+              <td>{{hh.visibility}}</td>
+            </tr>
+          </thead>
+          @for(rh of d.hours; track $index) {
+          @let c = rh.rows;
+          <tr>
+            <td>{{c.hour | date: "HH:mm"}}</td>
+            <td>{{c.symbol}}</td>
+            <td>{{c.temp.value}} {{c.temp.unit}}</td>
+            <td>{{c.feelsLike}}</td>
+            <td>{{c.wind.direction}} {{c.wind.speed | number: "1.1-1" }} ({{c.wind.gust | number: "1.1-1"}}
+              {{c.wind.unit}})
+            </td>
+            <td>{{c.percipitation}}</td>
+            <td>{{c.humidity}}</td>
+            <td>{{c.airpressure}}</td>
+            <td>{{c.visibility}}</td>
+          </tr>
+          }
+        </table>
+      </td>
+    </tr>
 
-  }
-</table>
+    }
+  </table>
+</div>
+
 }

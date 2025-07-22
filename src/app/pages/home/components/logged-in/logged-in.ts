@@ -31,4 +31,8 @@ export class LoggedIn {
 
   }
 
+  toggleDetailsRow(event: Event) {
+    console.log(event)
+  }
+
 }
