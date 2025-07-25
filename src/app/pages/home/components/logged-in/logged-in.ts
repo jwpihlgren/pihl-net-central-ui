@@ -1,13 +1,13 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Pollen } from '../../../../shared/services/pollen';
 import { PollenRegionalReport } from '../../../../shared/components/pollen-regional-report/pollen-regional-report';
 import { HassTempSensorService } from '../../../../shared/services/hass-temp-sensor.service';
 import { WeatherService } from '../../../../shared/services/weather.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-logged-in',
-  imports: [PollenRegionalReport, DatePipe, DecimalPipe],
+  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass],
   templateUrl: './logged-in.html',
   styleUrl: './logged-in.css'
 })
@@ -19,10 +19,13 @@ export class LoggedIn {
   hassTemperatureResource
   forecast = computed(() => this.forecastResource.value())
   hassTemperature = computed(() => this.hassTemperatureResource.value())
-  weatherForecastResource = this.weatherService.forecastByCoordinates({ lat: 58, lon: 16 })
+  weatherForecastResource = this.weatherService.forecastByCoordinates({ lat: 57.716666, lon: 11.966666 })
   f = effect(() => {
     console.log(this.weatherForecastResource.value())
   })
+
+
+  openDetailsRow = signal<number | undefined>(undefined)
 
   constructor() {
     this.forecastResource = this.pollenService.forecast
@@ -32,7 +35,11 @@ export class LoggedIn {
   }
 
   toggleDetailsRow(event: Event) {
-    console.log(event)
+    const element = event.currentTarget as HTMLElement
+    let rowId: number | undefined = parseInt(element.getAttribute("data-master-row-id") || "")
+    if (isNaN(rowId)) rowId = undefined
+    if (rowId === this.openDetailsRow()) rowId = undefined
+    this.openDetailsRow.set(rowId)
   }
 
 }

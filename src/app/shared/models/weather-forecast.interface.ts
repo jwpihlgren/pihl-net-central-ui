@@ -28,11 +28,11 @@ type WeatherForecastHourlyTableData = {
   symbol: number,
   temp: { value: number, unit: string },
   wind: { direction: string, speed: number, gust: number, unit: string },
-  percipitation: number,
-  feelsLike: number,
-  humidity: number,
-  airpressure: number,
-  visibility: number
+  percipitation: { value: number, unit: string },
+  feelsLike: { value: number, unit: string },
+  humidity: { value: number, unit: string },
+  airpressure: { value: number, unit: string },
+  visibility: { value: number, unit: string }
 }
 
 export type WeatherForecastHourlyTable = TableDefinition<WeatherForecastHourlyTableData>

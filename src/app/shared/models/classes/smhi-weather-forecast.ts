@@ -123,11 +123,11 @@ export class SmhiWeatherForecast implements WeatherForecast {
         symbol: symbol.values[0],
         temp: { value: temp.values[0], unit: temp.unit },
         wind: { direction: this.compassDirection(windDirection.values[0]), speed: windSpeed.values[0], gust: windGust.values[0], unit: windSpeed.unit },
-        percipitation: percipitation.values[0],
-        feelsLike: feelsLike,
-        humidity: humidity.values[0],
-        airpressure: airPressure.values[0],
-        visibility: visibility.values[0],
+        percipitation: { value: percipitation.values[0], unit: percipitation.unit },
+        feelsLike: { value: feelsLike, unit: temp.unit },
+        humidity: { value: humidity.values[0], unit: humidity.unit },
+        airpressure: { value: airPressure.values[0], unit: airPressure.unit },
+        visibility: { value: visibility.values[0], unit: visibility.unit },
       }
     }
 

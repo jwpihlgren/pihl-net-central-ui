@@ -1,0 +1,7 @@
+[data-detail-row-id] {
+  display: none;
+}
+
+[data-detail-row-id].open {
+  display: table-row;
+}
