@@ -1,3 +1,8 @@
+@if(forecast().isEndOfSeason) {
+  <span>Pollenrapporten will be back next season</span>
+}
+@else {
+
 @let f = forecast().forecastPeriods[0];
 <header class="flex col gap-md">
   <h6> Pollenrapport - {{f.regionName}}</h6>
@@ -50,3 +55,5 @@
   <div class="meta-information | flex col a-end grow">
   </div>
 </footer>
+
+}

@@ -9,6 +9,7 @@ export class PRPollenForecast implements PollenForecast {
   totalPages: number;
   currentPage: number;
   totalResults: number;
+  isEndOfSeason: boolean;
   forecastPeriods
 
 
@@ -18,6 +19,7 @@ export class PRPollenForecast implements PollenForecast {
     this.currentPage = this.calculateCurrentPage(raw._meta.offset, raw._meta.limit)
     this.totalResults = raw._meta.totalRecords
     this.forecastPeriods = this.mapData(raw, pollenIdMap, pollenRegions)
+    this.isEndOfSeason = raw.items.some(i => i.isEndOfSeason)
   }
 
 

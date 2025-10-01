@@ -5,7 +5,7 @@
   @else if(forecastResource.status() === "error") {
   Error {{forecastResource.error()}}
   }
-  @else if (forecastResource.hasValue() && forecastResource.value === undefined) {
+  @else if (forecastResource.hasValue() && forecastResource.value() === undefined) {
   No forecast
   }
   @else {
@@ -23,7 +23,7 @@
   No temperature
   }
   @else {
-  {{hassTemperature()}}
+  {{hassTemperature()}} Celcius
   }
 </div>
 

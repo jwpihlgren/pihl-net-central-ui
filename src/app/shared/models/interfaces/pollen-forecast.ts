@@ -1,6 +1,7 @@
 import { Paginated } from "./paginated";
 
 export interface PollenForecast extends Paginated {
+  isEndOfSeason: boolean,
   forecastPeriods: {
     id: string
     regionId: string

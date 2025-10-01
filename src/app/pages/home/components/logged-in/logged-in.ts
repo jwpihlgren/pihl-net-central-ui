@@ -17,10 +17,10 @@ export class LoggedIn {
   weatherService = inject(WeatherService)
   forecastResource
   hassTemperatureResource
-  forecast = computed(() => this.forecastResource.value())
   hassTemperature = computed(() => this.hassTemperatureResource.value())
   weatherForecastResource = this.weatherService.forecastByCoordinates({ lat: 57.716666, lon: 11.966666 })
   f = effect(() => {
+    console.log(this.forecastResource.value())
     console.log(this.weatherForecastResource.value())
   })
 
