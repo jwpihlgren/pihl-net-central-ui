@@ -1,13 +1,14 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Pollen } from '../../../../shared/services/pollen';
 import { PollenRegionalReport } from '../../../../shared/components/pollen-regional-report/pollen-regional-report';
 import { HassTempSensorService } from '../../../../shared/services/hass-temp-sensor.service';
 import { WeatherService } from '../../../../shared/services/weather.service';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
+import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts'
 
 @Component({
   selector: 'app-logged-in',
-  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass],
+  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass, CanvasJSAngularChartsModule],
   templateUrl: './logged-in.html',
   styleUrl: './logged-in.css'
 })
@@ -19,13 +20,26 @@ export class LoggedIn {
   hassTemperatureResource
   hassTemperature = computed(() => this.hassTemperatureResource.value())
   weatherForecastResource = this.weatherService.forecastByCoordinates({ lat: 57.716666, lon: 11.966666 })
-  f = effect(() => {
-    console.log(this.forecastResource.value())
-    console.log(this.weatherForecastResource.value())
-  })
-
 
   openDetailsRow = signal<number | undefined>(undefined)
+
+
+  chartOptions = {
+    title: {
+      text: "Hello"
+    },
+    animationEnabled: true,
+    backgroundColor: null,
+    data: [{
+      type: "rangeColumn",
+      dataPoints: [
+        { label: "Apple", y: [5, 10] },
+        { label: "Banana", y: [2, 12] },
+        { label: "Peach", y: [3, 6] },
+        { label: "Strawberry", y: [2, 1] },
+      ]
+    }]
+  }
 
   constructor() {
     this.forecastResource = this.pollenService.forecast
