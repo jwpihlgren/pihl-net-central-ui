@@ -1,14 +1,21 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild } from '@angular/core';
 import { Pollen } from '../../../../shared/services/pollen';
 import { PollenRegionalReport } from '../../../../shared/components/pollen-regional-report/pollen-regional-report';
 import { HassTempSensorService } from '../../../../shared/services/hass-temp-sensor.service';
 import { WeatherService } from '../../../../shared/services/weather.service';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
-import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts'
+import { NgApexchartsModule, ApexAxisChartSeries, ApexChart, ApexXAxis, ApexTitleSubtitle, ChartComponent } from 'ng-apexcharts'
+
+export type ChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  title: ApexTitleSubtitle;
+};
 
 @Component({
   selector: 'app-logged-in',
-  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass, CanvasJSAngularChartsModule],
+  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass, NgApexchartsModule],
   templateUrl: './logged-in.html',
   styleUrl: './logged-in.css'
 })
@@ -23,23 +30,40 @@ export class LoggedIn {
 
   openDetailsRow = signal<number | undefined>(undefined)
 
+  @ViewChild("chart") chart!: ChartComponent;
 
-  chartOptions = {
-    title: {
-      text: "Hello"
+  chartOptions: Partial<ChartOptions> = {
+    chart: {
+      type: "rangeBar",
+      height: 350
     },
-    animationEnabled: true,
-    backgroundColor: null,
-    data: [{
-      type: "rangeColumn",
-      dataPoints: [
-        { label: "Apple", y: [5, 10] },
-        { label: "Banana", y: [2, 12] },
-        { label: "Peach", y: [3, 6] },
-        { label: "Strawberry", y: [2, 1] },
-      ]
-    }]
+    title: {
+      text: "Test"
+    },
+    series: [
+      {
+        name: "Series 1", data: [
+          { x: "Måndag", y: [1, 9] },
+          { x: "Tisdag", y: [1, 9] },
+          { x: "Onsdag", y: [1, 9] },
+        ]
+      }
+    ],
   }
+
+  plotOptions: ApexPlotOptions = {
+    bar: {
+      borderRadius: 7,
+      borderRadiusApplication: "around",
+      columnWidth: "5%",
+      colors: {
+        backgroundBarRadius: 1,
+        backgroundBarOpacity: 1,
+        backgroundBarColors: ["#c4c4c4"]
+      }
+    }
+  }
+
 
   constructor() {
     this.forecastResource = this.pollenService.forecast
