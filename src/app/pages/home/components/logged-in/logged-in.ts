@@ -4,18 +4,12 @@ import { PollenRegionalReport } from '../../../../shared/components/pollen-regio
 import { HassTempSensorService } from '../../../../shared/services/hass-temp-sensor.service';
 import { WeatherService } from '../../../../shared/services/weather.service';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
-import { NgApexchartsModule, ApexAxisChartSeries, ApexChart, ApexXAxis, ApexTitleSubtitle, ChartComponent } from 'ng-apexcharts'
+import { RangeBarChart } from '../../../../shared/components/range-bar-chart/range-bar-chart';
 
-export type ChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  title: ApexTitleSubtitle;
-};
 
 @Component({
   selector: 'app-logged-in',
-  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass, NgApexchartsModule],
+  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass, RangeBarChart],
   templateUrl: './logged-in.html',
   styleUrl: './logged-in.css'
 })
@@ -29,40 +23,6 @@ export class LoggedIn {
   weatherForecastResource = this.weatherService.forecastByCoordinates({ lat: 57.716666, lon: 11.966666 })
 
   openDetailsRow = signal<number | undefined>(undefined)
-
-  @ViewChild("chart") chart!: ChartComponent;
-
-  chartOptions: Partial<ChartOptions> = {
-    chart: {
-      type: "rangeBar",
-      height: 350
-    },
-    title: {
-      text: "Test"
-    },
-    series: [
-      {
-        name: "Series 1", data: [
-          { x: "Måndag", y: [1, 9] },
-          { x: "Tisdag", y: [1, 9] },
-          { x: "Onsdag", y: [1, 9] },
-        ]
-      }
-    ],
-  }
-
-  plotOptions: ApexPlotOptions = {
-    bar: {
-      borderRadius: 7,
-      borderRadiusApplication: "around",
-      columnWidth: "5%",
-      colors: {
-        backgroundBarRadius: 1,
-        backgroundBarOpacity: 1,
-        backgroundBarColors: ["#c4c4c4"]
-      }
-    }
-  }
 
 
   constructor() {
