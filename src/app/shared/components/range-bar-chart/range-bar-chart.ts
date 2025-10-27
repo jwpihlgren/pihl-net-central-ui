@@ -1,12 +1,52 @@
-import { Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
-import { NgApexchartsModule, ApexAxisChartSeries, ApexChart, ApexXAxis, ApexTitleSubtitle, ChartComponent } from 'ng-apexcharts'
+import { Component, ElementRef, inject, input, InputSignal, OnInit, ViewChild } from '@angular/core';
+import {
+  NgApexchartsModule,
+  ChartComponent,
+  ApexAxisChartSeries,
+  ApexChart,
+  ApexXAxis,
+  ApexTitleSubtitle,
+  ApexYAxis,
+  ApexDataLabels,
+  ApexGrid,
+  ApexTooltip,
+  ApexStroke,
+  ApexLegend,
+  ApexPlotOptions
+} from 'ng-apexcharts'
 
-type ChartOptions = {
+export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
-  xaxis: ApexXAxis;
-  title: ApexTitleSubtitle;
+  xaxis?: ApexXAxis;
+  yaxis?: ApexYAxis;
+  title?: ApexTitleSubtitle;
+  dataLabels?: ApexDataLabels;
+  legend?: ApexLegend;
+  tooltip?: ApexTooltip;
+  grid?: ApexGrid;
+  stroke?: ApexStroke;
+  plotOptions?: ApexPlotOptions;
 };
+
+@Component({
+  template: ``
+})
+abstract class BaseChartComponent {
+  abstract options: InputSignal<Partial<ChartOptions>>;
+  protected abstract defaultOptions: Partial<ChartOptions>;
+
+  get mergedOptions(): ChartOptions {
+    return {
+      ...this.defaultOptions,
+      ...this.options(),
+      chart: {
+        ...this.defaultOptions.chart,
+        ...this.options().chart
+      }
+    } as ChartOptions;
+  }
+}
 
 @Component({
   selector: 'app-range-bar-chart',
@@ -14,67 +54,58 @@ type ChartOptions = {
   templateUrl: './range-bar-chart.html',
   styleUrl: './range-bar-chart.css'
 })
-export class RangeBarChart {
+export class RangeBarChart extends BaseChartComponent {
   @ViewChild("chart") chart!: ChartComponent;
-  elementRef = inject(ElementRef)
+  elementRef = inject(ElementRef);
 
-  labels = signal<Element[]>([])
-  chartReady = computed(() => {
-  })
+  options = input<Partial<ChartOptions>>({});
 
-  x = getComputedStyle(document.body)
-
-  chartOptions: Partial<ChartOptions> = {
+  protected defaultOptions: Partial<ChartOptions> = {
     chart: {
       type: "rangeBar",
       foreColor: "#ffffff",
       height: 350,
+      toolbar: { show: false },
       events: {
-        mounted: (() => {
+        mounted: () => {
           const element = this.elementRef.nativeElement as HTMLElement;
-          const labels = element.querySelectorAll(".apexcharts-xaxis-label");
+          const labels = element.querySelectorAll(".apexcharts-yaxis-label");
+          labels.forEach((label, index) => {
+            label.parentNode?.querySelectorAll(`path.custom-icon`).forEach((n) => n.remove());
 
-          labels.forEach((label: any) => {
-            const bbox = label.getBBox();
-            const x = bbox.x + bbox.width / 2;
-            const y = bbox.y + bbox.height + 5;
+            const series = this.options().series;
+            if (!series || !series[0] || !series[0].data) return;
 
-            // Material Design cloud icon
-            const cloudPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            cloudPath.setAttribute('d', 'M19.35 10.04C18.67 6.59 15.64 4 12 4c-1.48 0-2.85.43-4.01 1.17C6.36 5.72 5 7.16 5 9c-1.66 0-3 1.34-3 3s1.34 3 3 3h14c1.1 0 2-.9 2-2 0-1.01-.75-1.84-1.65-1.96z');
-            cloudPath.setAttribute('fill', '#ffffff');
-            cloudPath.setAttribute('stroke', '#666666');
-            cloudPath.setAttribute('stroke-width', '0.3');
-            cloudPath.setAttribute('transform', `translate(${x - 12}, ${y})`);
+            const dataPoint = series[0].data[index] as any;
+            if (!dataPoint || !dataPoint.icon) return;
 
-            label.parentNode?.appendChild(cloudPath);
+            const bbox = (label as SVGGraphicsElement).getBBox();
+            const x = bbox.x + bbox.width + 10;
+            const y = bbox.y + bbox.height / 2;
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', dataPoint.icon);
+            path.setAttribute('fill', '#ffffff');
+            path.setAttribute('stroke', '#666666');
+            path.setAttribute('stroke-width', '0.3');
+            path.classList.add('custom-icon');
+            path.setAttribute('transform', `translate(${x}, ${y - 12})`);
+
+            label.parentNode?.appendChild(path);
           });
-        })
+        }
       }
     },
-    title: {
-      text: "Test"
-    },
-    series: [
-      {
-        name: "Series 1", data: [
-          { x: "2025-01-01", y: [1, 9] },
-          { x: "Tisdag", y: [1, 9] },
-          { x: "Onsdag", y: [2, 2] },
-        ], color: "#5754e8"
-      },
-    ],
-  }
-
-  plotOptions: ApexPlotOptions = {
-    bar: {
-      borderRadius: 12,
-      borderRadiusApplication: "around",
-      columnWidth: "24px",
-      dataLabels: {
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "24px",
+        borderRadius: 12,
+        borderRadiusApplication: "around",
       }
     },
-  }
-
-
+    dataLabels: {
+      enabled: false
+    }
+  };
 }
