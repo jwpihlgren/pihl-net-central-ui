@@ -59,6 +59,7 @@ export class RangeBarChart extends BaseChartComponent {
   elementRef = inject(ElementRef);
 
   options = input<Partial<ChartOptions>>({});
+  labelIcons = input<string[]>()
 
   protected defaultOptions: Partial<ChartOptions> = {
     chart: {
@@ -68,30 +69,46 @@ export class RangeBarChart extends BaseChartComponent {
       toolbar: { show: false },
       events: {
         mounted: () => {
+          console.log(this.options().series)
           const element = this.elementRef.nativeElement as HTMLElement;
-          const labels = element.querySelectorAll(".apexcharts-yaxis-label");
+          const labels = element.querySelectorAll(".apexcharts-xaxis-label");
           labels.forEach((label, index) => {
-            label.parentNode?.querySelectorAll(`path.custom-icon`).forEach((n) => n.remove());
-
-            const series = this.options().series;
-            if (!series || !series[0] || !series[0].data) return;
-
-            const dataPoint = series[0].data[index] as any;
-            if (!dataPoint || !dataPoint.icon) return;
-
+            if (!this.labelIcons() || !this.labelIcons()![index]) return;
+            const iconSvg = this.labelIcons()![index];
             const bbox = (label as SVGGraphicsElement).getBBox();
-            const x = bbox.x + bbox.width + 10;
-            const y = bbox.y + bbox.height / 2;
 
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.setAttribute('d', dataPoint.icon);
-            path.setAttribute('fill', '#ffffff');
-            path.setAttribute('stroke', '#666666');
-            path.setAttribute('stroke-width', '0.3');
-            path.classList.add('custom-icon');
-            path.setAttribute('transform', `translate(${x}, ${y - 12})`);
+            // Create a group to contain the icon
+            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
-            label.parentNode?.appendChild(path);
+            // Parse the SVG string properly
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${iconSvg}</svg>`, 'image/svg+xml');
+            const svgElement = doc.documentElement;
+
+            // Append all children to the group
+            Array.from(svgElement.children).forEach(child => {
+              group.appendChild(document.importNode(child, true));
+            });
+
+            label.parentNode?.appendChild(group);
+
+            // Get the group's bounding box
+            const groupBBox = group.getBBox();
+
+            // Define desired icon size
+            const targetSize = 20;
+            const scale = targetSize / Math.max(groupBBox.width, groupBBox.height);
+
+            // Calculate position to center under label
+            const scaledWidth = groupBBox.width * scale;
+            const x = bbox.x + (bbox.width / 2) - (scaledWidth / 2);
+            const y = bbox.y + bbox.height + 8;
+
+
+            // Apply transform
+            group.setAttribute('transform',
+              `translate(${x - groupBBox.x * scale}, ${y - groupBBox.y * scale}) scale(${scale})`
+            );
           });
         }
       }
@@ -100,9 +117,12 @@ export class RangeBarChart extends BaseChartComponent {
       bar: {
         horizontal: false,
         columnWidth: "24px",
-        borderRadius: 12,
+        borderRadius: 2,
         borderRadiusApplication: "around",
       }
+    },
+    yaxis: {
+      forceNiceScale: true
     },
     dataLabels: {
       enabled: false
