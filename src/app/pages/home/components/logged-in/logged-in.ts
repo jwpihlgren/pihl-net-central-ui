@@ -1,16 +1,17 @@
-import { Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, signal, } from '@angular/core';
 import { Pollen } from '../../../../shared/services/pollen';
 import { PollenRegionalReport } from '../../../../shared/components/pollen-regional-report/pollen-regional-report';
 import { HassTempSensorService } from '../../../../shared/services/hass-temp-sensor.service';
 import { WeatherService } from '../../../../shared/services/weather.service';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { ChartOptions, RangeBarChart } from '../../../../shared/components/range-bar-chart/range-bar-chart';
-import { WeatherForecast } from '../../../../shared/models/weather-forecast.interface';
+import { WeatherForecast } from '../../../../shared/models/interfaces/weather-forecast.interface';
+import { WeatherIcon } from '../../../../shared/components/weather-icon/weather-icon';
 
 
 @Component({
   selector: 'app-logged-in',
-  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass, RangeBarChart],
+  imports: [PollenRegionalReport, DatePipe, DecimalPipe, NgClass, RangeBarChart, WeatherIcon],
   templateUrl: './logged-in.html',
   styleUrl: './logged-in.css'
 })
@@ -47,15 +48,17 @@ export class LoggedIn {
           name: "Temperature",
           data: forecast.days.map(d => ({
             x: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            y: [d.parameters.rows.temp.min, +(d.parameters.rows.temp.max + 0.1).toFixed(2)]
+            y: [Math.round(d.parameters.rows.temp.min), Math.round(d.parameters.rows.temp.max) + 0.1]
           }))
         }
       ]
     }
   }
   weatherForecastAsIcons(forecast: WeatherForecast): string[] {
-    return forecast.days.map(d => iconPaths[d.parameters.rows.symbol])
+    return forecast.days.map(d => this.iconPaths[d.parameters.rows.symbol])
   }
+
+  iconPaths = iconPaths
 }
 
 export const iconPaths: Record<number, string> = {

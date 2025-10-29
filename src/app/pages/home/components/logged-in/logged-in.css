@@ -5,3 +5,7 @@
 [data-detail-row-id].open {
   display: table-row;
 }
+
+.table-inner {
+  background: var(--clr-surface-elevation-2);
+}

@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, InputSignal, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, input, InputSignal, ViewChild } from '@angular/core';
 import {
   NgApexchartsModule,
   ChartComponent,
@@ -14,6 +14,7 @@ import {
   ApexLegend,
   ApexPlotOptions
 } from 'ng-apexcharts'
+import { WeatherIcon } from '../weather-icon/weather-icon';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;

@@ -1,5 +1,5 @@
-import { SMHIForecastTimeSerie, SMHIForecastTimeSerieParameter, SMHIParameterName, SMHIWeatherForecastResponse } from "../smhi/weather-forecast-response.interface";
-import { WeatherForecast, WeatherForecastCoordinates, WeatherForecastDailyTable, WeatherForecastDay, WeatherForecastHourlyTable } from "../weather-forecast.interface";
+import { SMHIForecastTimeSerie, SMHIForecastTimeSerieParameter, SMHIParameterName, SMHIWeatherForecastResponse, wPcats, wUnits } from "../smhi/weather-forecast-response.interface";
+import { WeatherForecast, WeatherForecastCoordinates, WeatherForecastDailyTable, WeatherForecastDay, WeatherForecastHourlyTable } from "../interfaces/weather-forecast.interface";
 
 export class SmhiWeatherForecast implements WeatherForecast {
   issuedTime: Date
@@ -38,7 +38,7 @@ export class SmhiWeatherForecast implements WeatherForecast {
 
   generateDailyParameters(timeSeries: SMHIForecastTimeSerie[]): WeatherForecastDailyTable {
 
-    const dailyHeaders = { day: "day", symbol: "", percipitation: "L/H", wind: "wind", visibility: "visibility", temp: "temperature" }
+    const dailyHeaders = { day: "Dag", symbol: "", percipitation: "Nederbörd", wind: "Vind", visibility: "Sikt", temp: "Min / Max (°C)" }
     const groupedParams: Record<SMHIParameterName, SMHIForecastTimeSerieParameter[]> = timeSeries.reduce((acc, cur) => {
       cur.parameters.forEach(p => acc[p.name] ? acc[p.name].push(p) : acc[p.name] = [p])
       return acc
@@ -66,9 +66,9 @@ export class SmhiWeatherForecast implements WeatherForecast {
       rows: {
         day: day,
         symbol: symbol,
-        temp: { min: minTemp, max: maxTemp, unit: groupedParams.t[0].unit },
-        wind: { direction: this.compassDirection(windDirection), speed: windSpeed, gust: windGust, unit: groupedParams.ws[0].unit },
-        percipitation: { min: minPercipitation, max: maxPercipitation, unit: groupedParams.pmin[0].unit }
+        temp: { min: minTemp, max: maxTemp, unit: this.getNiceUnit(groupedParams.t[0].unit) },
+        wind: { direction: this.compassDirection(windDirection), speed: windSpeed, gust: windGust, unit: this.getNiceUnit(groupedParams.ws[0].unit) },
+        percipitation: { min: minPercipitation, max: maxPercipitation, unit: this.getNiceUnit(groupedParams.pmin[0].unit) }
       }
     }
 
@@ -95,15 +95,15 @@ export class SmhiWeatherForecast implements WeatherForecast {
   mapHours(h: SMHIForecastTimeSerie): WeatherForecastHourlyTable {
 
     const hourlyHeaders = {
-      hour: "hour",
-      symbol: "weather",
-      percipitation: "percipitation",
-      wind: "wind",
-      feelsLike: "feels like",
-      humidity: "humidity",
-      airpressure: "airpressure",
-      visibility: "visibility",
-      temp: "Temperature"
+      hour: "Timme",
+      symbol: "",
+      percipitation: "Nederbörd",
+      wind: "Vind",
+      feelsLike: "Känns som",
+      humidity: "Relativ fuktighet",
+      airpressure: "Barometer",
+      visibility: "Sikt",
+      temp: "Temperatur"
     }
     const temp = h.parameters.find(p => p.name === "t")!
     const windDirection = h.parameters.find(p => p.name === "wd")!
@@ -121,17 +121,21 @@ export class SmhiWeatherForecast implements WeatherForecast {
       rows: {
         hour: new Date(h.validTime),
         symbol: symbol.values[0],
-        temp: { value: temp.values[0], unit: temp.unit },
-        wind: { direction: this.compassDirection(windDirection.values[0]), speed: windSpeed.values[0], gust: windGust.values[0], unit: windSpeed.unit },
-        percipitation: { value: percipitation.values[0], unit: percipitation.unit },
-        feelsLike: { value: feelsLike, unit: temp.unit },
-        humidity: { value: humidity.values[0], unit: humidity.unit },
-        airpressure: { value: airPressure.values[0], unit: airPressure.unit },
-        visibility: { value: visibility.values[0], unit: visibility.unit },
+        temp: { value: temp.values[0], unit: this.getNiceUnit(temp.unit) },
+        wind: { direction: this.compassDirection(windDirection.values[0]), speed: windSpeed.values[0], gust: windGust.values[0], unit: this.getNiceUnit(windSpeed.unit) },
+        percipitation: { value: percipitation.values[0], unit: this.getNiceUnit(percipitation.unit) },
+        feelsLike: { value: feelsLike, unit: this.getNiceUnit(temp.unit)},
+        humidity: { value: humidity.values[0], unit: this.getNiceUnit(humidity.unit) },
+        airpressure: { value: airPressure.values[0], unit: this.getNiceUnit(airPressure.unit) },
+        visibility: { value: visibility.values[0], unit: this.getNiceUnit(visibility.unit) },
       }
     }
 
     return parameters
+  }
+
+  private getNiceUnit(unit: string): string {
+    return wUnits[unit.toLocaleLowerCase() as keyof typeof wUnits] ?? unit
   }
 
   private calculateFeelslike(temp: number, humidity: number, windSpeedMps: number): number {

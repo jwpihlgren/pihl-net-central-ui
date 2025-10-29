@@ -4,8 +4,6 @@ export interface WeatherForecast {
   regionName: string
   coordinates: WeatherForecastCoordinates[]
   issuedTime: Date,
-  dailyHeaders: string[]
-  hourlyHeaders: string[]
   days: WeatherForecastDay[]
 }
 
@@ -15,34 +13,33 @@ export interface WeatherForecastDay {
   hours: WeatherForecastHourlyTable[]
 }
 
-//Daily forecasts
 type WeatherForecastDailyTableData = {
   day: Date,
-  symbol: string,
+  symbol: number,
   percipitation: { min: number, max: number, unit: string },
-  wind: { direction: string, speed: number, unit: string }
+  wind: { direction: string, speed: number, gust: number, unit: string }
   temp: { min: number, max: number, unit: string }
 }
+
 export type WeatherForecastDailyTable = TableDefinition<WeatherForecastDailyTableData>
 
-//Hourly forecasts
 type WeatherForecastHourlyTableData = {
   hour: Date,
   symbol: number,
-  temp: number, unit: string,
-  windDirection: { windDirection: string, windSpeed: number, windGust: number },
-  percipitation: number,
-  feelsLike: number,
-  humidity: number,
-  airpressure: number,
-  visibility: number
+  temp: { value: number, unit: string },
+  wind: { direction: string, speed: number, gust: number, unit: string },
+  percipitation: { value: number, unit: string },
+  feelsLike: { value: number, unit: string },
+  humidity: { value: number, unit: string },
+  airpressure: { value: number, unit: string },
+  visibility: { value: number, unit: string }
 }
+
 export type WeatherForecastHourlyTable = TableDefinition<WeatherForecastHourlyTableData>
 
-//coordinates
+
+
 export interface WeatherForecastCoordinates {
   lat: number
   lon: number
 }
-
-

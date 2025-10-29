@@ -39,6 +39,8 @@ No weather forecast
 }
 @else {
 @let w = weatherForecastResource.value()!;
+
+<app-range-bar-chart [options]=weatherForecastAsData(w) [labelIcons]=weatherForecastAsIcons(w)></app-range-bar-chart>
 <table class="table">
   <thead>
     @let h = w.days[0].parameters.headers;
@@ -54,21 +56,21 @@ No weather forecast
   @let r = d.parameters.rows;
   <tr [attr.data-master-row-id]=" $index" (click)="toggleDetailsRow($event)" class="hover:bg-base-300">
     <td>{{r.day | date}}</td>
-    <td>{{r.symbol}}</td>
-    <td>{{r.temp.min | number: "1.1-1"}}-{{r.temp.max | number: "1.1-1"}} {{r.temp.unit}}</td>
-    <td>{{r.wind.direction}} {{r.wind.speed | number: "1.1-1"}} ({{r.wind.gust | number: "1.1-1"}}) {{r.wind.unit}}
+    <td><app-weather-icon [iconIndex]="+r.symbol"></app-weather-icon></td>
+    <td>{{r.temp.min | number: "1.0-0"}}{{r.temp.unit}} / {{r.temp.max | number: "1.0-0"}}{{r.temp.unit}}</td>
+    <td>{{r.wind.direction}} {{r.wind.speed | number: "1.0-0"}} ({{r.wind.gust | number: "1.0-0"}}) {{r.wind.unit}}
     </td>
     <td>{{r.percipitation.min | number: "1.1-1"}}-{{r.percipitation.max | number: "1.1-1"}} {{r.percipitation.unit}}
     </td>
   </tr>
   <tr [attr.data-detail-row-id]="$index" [ngClass]="{'open': openDetailsRow() === $index}">
     <td [colSpan]="5">
-      <table class="table table-xs">
+      <table class="table table-xs table-inner">
         <thead>
           @let hh = d.hours[0].headers;
           <tr>
             <td>{{hh.hour}}</td>
-            <td>{{hh.symbol}}</td>
+            <td></td>
             <td>{{hh.temp}}</td>
             <td>{{hh.feelsLike}}</td>
             <td>{{hh.wind}}</td>
@@ -82,7 +84,7 @@ No weather forecast
         @let c = rh.rows;
         <tr>
           <td>{{c.hour | date: "HH:mm"}}</td>
-          <td>{{c.symbol}}</td>
+          <td><app-weather-icon [iconIndex]="+c.symbol"></app-weather-icon></td>
           <td>{{c.temp.value | number: "1.0-0"}} {{c.temp.unit}}</td>
           <td>{{c.feelsLike.value | number: "1.0-0"}} {{c.temp.unit}} </td>
           <td>{{c.wind.direction}} {{c.wind.speed | number: "1.0-0" }} ({{c.wind.gust | number: "1.0-0"}})
@@ -101,5 +103,4 @@ No weather forecast
   }
 </table>
 
-<app-range-bar-chart [options]=weatherForecastAsData(w) [labelIcons]=weatherForecastAsIcons(w)></app-range-bar-chart>
 }

@@ -23,7 +23,7 @@ export interface SMHIForecastTimeSerieParameter {
   name: SMHIParameterName,
   levelType: "hl" | "hmsl",
   level: number,
-  unit: keyof typeof wUnits | "code" | "category",
+  unit: string,
   values: number[]
 }
 
@@ -33,10 +33,35 @@ export interface SMHIWeatherParameters {
 
 export type SMHIParameterName = "t" | "wd" | "ws" | "gust" | "r" | "msl" | "vis" | "tstm" | "tcc_mean" | "lcc_mean" | "mcc_mean" | "hcc_mean" | "pmean" | "pmin" | "pmax" | "pmedian" | "spp" | "pcat" | "Wsymb2" | "tp"
 
+export type SMHIParameterName2 =
+  | "pres"          // air_pressure_at_mean_sea_level
+  | "2t"            // air_temperature
+  | "tcc"           // cloud_area_fraction
+  | "cdcb"          // cloud_base_altitude
+  | "cdct"          // cloud_top_altitude
+  | "hcc"           // high_type_cloud_area_fraction
+  | "lcc"           // low_type_cloud_area_fraction
+  | "mcc"           // medium_type_cloud_area_fraction
+  | "tpratemax"     // precipitation_amount_max
+  | "tpratemean"    // precipitation_amount_mean
+  | "tpratemedian"  // precipitation_amount_median
+  | "tpratemin"     // precipitation_amount_min
+  | "spp"           // precipitation_frozen_part
+  | "ptype"         // predominant_precipitation_type_at_surface
+  | "fzpr"          // probability_of_frozen_precipitation
+  | "tp_gt_0p1"     // probability_of_precipitation
+  | "2r"            // relative_humidity
+  | "Wsymb2"        // symbol_code
+  | "tstm"          // thunderstorm_probability
+  | "vis"           // visibility_in_air
+  | "wd"            // wind_from_direction
+  | "ws"            // wind_speed
+  | "i10fg";        // wind_speed_of_gust
+
 
 export const wUnits = {
-  "cel": "C",
-  "degree": "degree",
+  "cel": "°",
+  "degree": "°",
   "m/s": "m/s",
   "percent": "%",
   "hPa": "hPa",

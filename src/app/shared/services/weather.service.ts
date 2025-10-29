@@ -3,7 +3,7 @@ import { SMHIWeatherForecastResponse } from '../models/smhi/weather-forecast-res
 import { httpResource } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { SmhiWeatherForecast } from '../models/classes/smhi-weather-forecast';
-import { WeatherForecast } from '../models/weather-forecast.interface';
+import { WeatherForecast } from '../models/interfaces/weather-forecast.interface';
 import { WeatherForecastRegionAutoComplete } from '../models/interfaces/weather-forecast-region-autocomplete.interface';
 
 @Injectable({
