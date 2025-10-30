@@ -1,23 +1,25 @@
-import { SMHIForecastTimeSerie, SMHIForecastTimeSerieParameter, SMHIParameterName, SMHIWeatherForecastResponse, wPcats, wUnits } from "../smhi/weather-forecast-response.interface";
-import { WeatherForecast, WeatherForecastCoordinates, WeatherForecastDailyTable, WeatherForecastDay, WeatherForecastHourlyTable } from "../interfaces/weather-forecast.interface";
+import { SMHIForecastTimeSerie, SMHIWeatherForecastResponse } from "../smhi/weather-forecast-response.interface";
+import { DailyWeather, HourlyWeather, WeatherForecast, WeatherForecastCoordinates, WeatherForecastDay } from "../interfaces/weather-forecast.interface";
+import { DateHelper } from "../../utils/date-helper";
 
 export class SmhiWeatherForecast implements WeatherForecast {
-  issuedTime: Date
+  createdDate: Date
+  referenceDate: Date
   regionName: string
   coordinates: WeatherForecastCoordinates[]
-
   days: WeatherForecastDay[]
 
   constructor(raw: SMHIWeatherForecastResponse) {
-    const timeSeriesGroupedByDate: Partial<Record<string, SMHIForecastTimeSerie[]>> = Object.groupBy(raw.timeSeries, ({ validTime }) => {
-      const date = new Date(validTime)
+    const timeSeriesGroupedByDate: Partial<Record<string, SMHIForecastTimeSerie[]>> = Object.groupBy(raw.timeSeries, ({ time }) => {
+      const date = new Date(time)
       const year = date.getFullYear()
       const month = date.getMonth()
       const day = date.getDate()
       return new Date(`${year}-${month}-${day}`).toString()
     })
 
-    this.issuedTime = raw.referenceTime
+    this.createdDate = raw.createdTime
+    this.referenceDate = raw.referenceTime
     this.coordinates = [{ lat: raw.geometry.coordinates[0][0], lon: raw.geometry.coordinates[0][1] }]
     this.regionName = ""
     this.days = []
@@ -27,56 +29,81 @@ export class SmhiWeatherForecast implements WeatherForecast {
   }
 
   mapTimeSeries(date: string, timeSeries: SMHIForecastTimeSerie[]): WeatherForecastDay {
+    const currentDate = new Date(date)
     const day: WeatherForecastDay = {
-      date: new Date(date),
-      parameters: this.generateDailyParameters(timeSeries),
-      hours: this.generateHourlyParameters(timeSeries)
+      date: currentDate,
+      daily: this.generateDailyParameters(timeSeries),
+      hourly: this.generateHourlyParameters(timeSeries)
     }
 
     return day
   }
 
-  generateDailyParameters(timeSeries: SMHIForecastTimeSerie[]): WeatherForecastDailyTable {
 
-    const dailyHeaders = { day: "Dag", symbol: "", percipitation: "Nederbörd", wind: "Vind", visibility: "Sikt", temp: "Min / Max (°C)" }
-    const groupedParams: Record<SMHIParameterName, SMHIForecastTimeSerieParameter[]> = timeSeries.reduce((acc, cur) => {
-      cur.parameters.forEach(p => acc[p.name] ? acc[p.name].push(p) : acc[p.name] = [p])
-      return acc
-    }, {} as Record<SMHIParameterName, SMHIForecastTimeSerieParameter[]>)
-
-    const minTemp = Math.min(...groupedParams.t.map(p => p.values[0]))
-    const maxTemp = Math.max(...groupedParams.t.map(p => p.values[0]))
-    const windDirection = groupedParams.wd.map(p => p.values[0]).reduce((acc, cur) => acc + cur) / groupedParams.wd.length
-    const windSpeed = groupedParams.ws.map(p => p.values[0]).reduce((acc, cur) => acc + cur) / groupedParams.ws.length
-    const windGust = groupedParams.gust.map(p => p.values[0]).reduce((acc, cur) => acc + cur) / groupedParams.gust.length
-    const minPercipitation = groupedParams.pmin.map(p => p.values[0]).reduce((acc, cur) => acc + cur)
-    const maxPercipitation = groupedParams.pmax.map(p => p.values[0]).reduce((acc, cur) => acc + cur)
-    const countOfSymbolValue = groupedParams.Wsymb2.map(p => p.values[0]).reduce((acc, cur) => {
-      acc.symbolCount[cur] ?
-        acc.symbolCount[cur] += 1 :
-        acc.symbolCount[cur] = 1;
-      if (acc.symbolCount[cur] > (acc.symbolCount[acc.max] ?? 0)) acc.max = cur
-      return acc
-    }, { symbolCount: {} as Record<number, number>, max: 0 })
-    const symbol = countOfSymbolValue.symbolCount[countOfSymbolValue.max]
-    const day = new Date(timeSeries[0].validTime)
-
-    const parameters: WeatherForecastDailyTable = {
-      headers: dailyHeaders,
-      rows: {
-        day: day,
-        symbol: symbol,
-        temp: { min: minTemp, max: maxTemp, unit: this.getNiceUnit(groupedParams.t[0].unit) },
-        wind: { direction: this.compassDirection(windDirection), speed: windSpeed, gust: windGust, unit: this.getNiceUnit(groupedParams.ws[0].unit) },
-        percipitation: { min: minPercipitation, max: maxPercipitation, unit: this.getNiceUnit(groupedParams.pmin[0].unit) }
-      }
-    }
-
-    return parameters
+  private calculateTotalProbability(probabilities: number[]): number {
+    const probabilityOfNoOccurance = probabilities.reduce((acc, cur) => acc * (1 - cur), 1)
+    const probabilityOfAtLeastOneOccurance = 1 - probabilityOfNoOccurance
+    return probabilityOfAtLeastOneOccurance
   }
 
-  generateHourlyParameters(t: SMHIForecastTimeSerie[]): WeatherForecastHourlyTable[] {
-    return t.map(t => this.mapHours(t))
+  private findMostCommonOccurance(occurances: number[]): number {
+    const count = {} as Record<number, number>
+    occurances.forEach(s => (count[s] ? count[s]++ : count[s] = 1))
+    const mostCommonEntry = Object.entries(count).reduce((acc, cur) => (cur[1] > acc[1] ? cur : acc), Object.entries(count)[0])
+    return mostCommonEntry[1]
+  }
+
+
+  generateDailyParameters(timeSeries: SMHIForecastTimeSerie[]): DailyWeather {
+
+    const parametersAggregated = timeSeries.reduce((acc, serie) => {
+      for (const key of Object.keys(serie.data) as (keyof typeof serie.data)[]) {
+        const value = serie.data[key];
+        (acc[key] ??= []).push(value);
+      }
+      return acc;
+    }, {} as { [K in keyof SMHIForecastTimeSerie["data"]]: SMHIForecastTimeSerie["data"][K][] });
+
+    const dailyWeather: DailyWeather = {
+      date: DateHelper.dateTimeToDate(timeSeries[0].time),
+      percipitationMax: Math.max(...parametersAggregated.precipitation_amount_max),
+      percipitationMin: Math.min(...parametersAggregated.precipitation_amount_min),
+      percipitationProbability: this.calculateTotalProbability(parametersAggregated.probability_of_precipitation),
+      temperatureMax: Math.max(...parametersAggregated.air_temperature),
+      temperatureMin: Math.min(...parametersAggregated.air_temperature),
+      weatherSymbol: this.findMostCommonOccurance(parametersAggregated.symbol_code),
+      windFromDirection: this.findMostCommonOccurance(parametersAggregated.wind_from_direction),
+      windGust: Math.max(...parametersAggregated.wind_speed_of_gust),
+      windSpeed: this.findMostCommonOccurance(parametersAggregated.wind_speed)
+    }
+    return dailyWeather
+  }
+
+  generateHourlyParameters(timeSeries: SMHIForecastTimeSerie[]): HourlyWeather[] {
+
+    const hourlyWeather: HourlyWeather[] = timeSeries.map(t => ({
+      percipitationMax: t.data.precipitation_amount_max,
+      percipitationMin: t.data.precipitation_amount_min,
+      percipitationPredominantType: t.data.predominant_precipitation_type_at_surface,
+      percipitationProbability: t.data.probability_of_precipitation,
+      time: t.time,
+      weatherSymbol: t.data.symbol_code,
+      windFromDirectionAsNumber: t.data.wind_from_direction,
+      windFromDirectionAsCompassHeading: this.compassDirection(t.data.wind_from_direction),
+      windGust: t.data.wind_speed_of_gust,
+      windSpeed: t.data.wind_speed,
+      airPressure: t.data.air_pressure_at_mean_sea_level,
+      relativeHumidity: t.data.relative_humidity,
+      temperature: t.data.air_temperature,
+      temperatureFeelsLike: this.calculateFeelslike(
+        t.data.air_temperature,
+        t.data.relative_humidity,
+        t.data.wind_speed
+      ),
+      visibility: t.data.visibility_in_air
+    })
+    )
+    return hourlyWeather
   }
 
   private compassDirection(degrees: number) {
@@ -89,53 +116,6 @@ export class SmhiWeatherForecast implements WeatherForecast {
     else if (degrees <= 22.5 * 13) return "W"
     else if (degrees <= 22.5 * 15) return "NW"
     throw new Error(`${degrees} is out of bounds of 0 an 360`)
-  }
-
-
-  mapHours(h: SMHIForecastTimeSerie): WeatherForecastHourlyTable {
-
-    const hourlyHeaders = {
-      hour: "Timme",
-      symbol: "",
-      percipitation: "Nederbörd",
-      wind: "Vind",
-      feelsLike: "Känns som",
-      humidity: "Relativ fuktighet",
-      airpressure: "Barometer",
-      visibility: "Sikt",
-      temp: "Temperatur"
-    }
-    const temp = h.parameters.find(p => p.name === "t")!
-    const windDirection = h.parameters.find(p => p.name === "wd")!
-    const windSpeed = h.parameters.find(p => p.name === "ws")!
-    const windGust = h.parameters.find(p => p.name === "gust")!
-    const percipitation = h.parameters.find(p => p.name === "pmean")!
-    const airPressure = h.parameters.find(p => p.name === "msl")!
-    const visibility = h.parameters.find(p => p.name === "vis")!
-    const symbol = h.parameters.find(p => p.name === "Wsymb2")!
-    const humidity = h.parameters.find(p => p.name === "r")!
-    const feelsLike = this.calculateFeelslike(temp.values[0], humidity.values[0], windSpeed.values[0])
-
-    const parameters: WeatherForecastHourlyTable = {
-      headers: hourlyHeaders,
-      rows: {
-        hour: new Date(h.validTime),
-        symbol: symbol.values[0],
-        temp: { value: temp.values[0], unit: this.getNiceUnit(temp.unit) },
-        wind: { direction: this.compassDirection(windDirection.values[0]), speed: windSpeed.values[0], gust: windGust.values[0], unit: this.getNiceUnit(windSpeed.unit) },
-        percipitation: { value: percipitation.values[0], unit: this.getNiceUnit(percipitation.unit) },
-        feelsLike: { value: feelsLike, unit: this.getNiceUnit(temp.unit)},
-        humidity: { value: humidity.values[0], unit: this.getNiceUnit(humidity.unit) },
-        airpressure: { value: airPressure.values[0], unit: this.getNiceUnit(airPressure.unit) },
-        visibility: { value: visibility.values[0], unit: this.getNiceUnit(visibility.unit) },
-      }
-    }
-
-    return parameters
-  }
-
-  private getNiceUnit(unit: string): string {
-    return wUnits[unit.toLocaleLowerCase() as keyof typeof wUnits] ?? unit
   }
 
   private calculateFeelslike(temp: number, humidity: number, windSpeedMps: number): number {

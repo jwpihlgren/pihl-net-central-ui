@@ -38,12 +38,17 @@ abstract class BaseChartComponent {
   protected abstract defaultOptions: Partial<ChartOptions>;
 
   get mergedOptions(): ChartOptions {
+    const inputOptions = this.options();
     return {
       ...this.defaultOptions,
-      ...this.options(),
+      ...inputOptions,
       chart: {
         ...this.defaultOptions.chart,
-        ...this.options().chart
+        ...inputOptions.chart
+      },
+      yaxis: {
+        ...this.defaultOptions.yaxis,
+        ...inputOptions.yaxis
       }
     } as ChartOptions;
   }
@@ -59,7 +64,7 @@ export class RangeBarChart extends BaseChartComponent {
   @ViewChild("chart") chart!: ChartComponent;
   elementRef = inject(ElementRef);
 
-  options = input<Partial<ChartOptions>>({});
+  options = input.required<Partial<ChartOptions>>({});
   labelIcons = input<string[]>()
 
   protected defaultOptions: Partial<ChartOptions> = {
@@ -70,7 +75,6 @@ export class RangeBarChart extends BaseChartComponent {
       toolbar: { show: false },
       events: {
         mounted: () => {
-          console.log(this.options().series)
           const element = this.elementRef.nativeElement as HTMLElement;
           const labels = element.querySelectorAll(".apexcharts-xaxis-label");
           labels.forEach((label, index) => {
@@ -123,8 +127,9 @@ export class RangeBarChart extends BaseChartComponent {
       }
     },
     yaxis: {
-      forceNiceScale: true
+      forceNiceScale: false,
     },
+
     dataLabels: {
       enabled: false
     }

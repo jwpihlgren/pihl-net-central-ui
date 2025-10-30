@@ -49,7 +49,6 @@ export class Pollen {
             }
             return this.http.get<PaginatedDataForecastPR>(url.buildWithQueryParams()).pipe(
               map(data => {
-                data.items.forEach(i => console.log(i.isEndOfSeason, i))
                 const forecast: PollenForecast = new PRPollenForecast(data, combined.pollenTypes, combined.pollenRegions)
                 this.storage.setSessionItemWithTTL<PollenForecast>(
                   `${environment.storage.pollenForecastPrefix}`,

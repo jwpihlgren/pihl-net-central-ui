@@ -48,14 +48,18 @@ export class LoggedIn {
           name: "Temperature",
           data: forecast.days.map(d => ({
             x: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            y: [Math.round(d.parameters.rows.temp.min), Math.round(d.parameters.rows.temp.max) + 0.1]
+            y: [Math.round(d.daily.temperatureMin), Math.round(d.daily.temperatureMax) + 0.1]
           }))
         }
-      ]
+      ],
+      yaxis: {
+        min: Math.round(Math.min(...forecast.days.map(d => d.daily.temperatureMin))) - 10,
+        max: Math.round(Math.max(...forecast.days.map(d => d.daily.temperatureMax))) + 10,
+      }
     }
   }
   weatherForecastAsIcons(forecast: WeatherForecast): string[] {
-    return forecast.days.map(d => this.iconPaths[d.parameters.rows.symbol])
+    return forecast.days.map(d => this.iconPaths[d.daily.weatherSymbol])
   }
 
   iconPaths = iconPaths
