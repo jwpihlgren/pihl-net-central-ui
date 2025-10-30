@@ -42,6 +42,9 @@ export class LoggedIn {
     this.openDetailsRow.set(rowId)
   }
   weatherForecastAsData(forecast: WeatherForecast): Partial<ChartOptions> {
+    const min = Math.min(...forecast.days.map(d => d.daily.temperatureMin)) - 10
+    const max = Math.max(...forecast.days.map(d => d.daily.temperatureMax)) + 10
+
     return {
       series: [
         {
@@ -53,8 +56,9 @@ export class LoggedIn {
         }
       ],
       yaxis: {
-        min: Math.round(Math.min(...forecast.days.map(d => d.daily.temperatureMin))) - 10,
-        max: Math.round(Math.max(...forecast.days.map(d => d.daily.temperatureMax))) + 10,
+        min: Math.ceil(((min - 5)) / 5) * 5,
+        max: Math.ceil(((max + 5)) / 5) * 5,
+        decimalsInFloat: 0
       }
     }
   }
