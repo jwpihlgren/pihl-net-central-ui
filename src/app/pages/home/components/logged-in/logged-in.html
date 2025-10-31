@@ -52,7 +52,8 @@ No weather forecast
   </thead>
   @for(d of w.days; track $index) {
   @let r = d.daily;
-  <tr [attr.data-master-row-id]=" $index" (click)="toggleDetailsRow($event)" class="hover:bg-base-300">
+  <tr [attr.data-master-row-id]=" $index" (click)="toggleDetailsRow($event)"
+    [ngClass]="{'open': openDetailsRow() === $index}" class="hover:bg-base-300">
     <td>{{r.date | date}}</td>
     <td class="flex f-row f-align-center gap-md">
       <app-weather-icon [iconIndex]="+r.weatherSymbol"></app-weather-icon>
