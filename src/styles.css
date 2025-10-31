@@ -165,6 +165,21 @@
   }
 }
 
+
+
+
+/* FLEX */
+.flex { display: flex; }
+.f-row { flex-direction: row; }
+.f-col {flex-direction: column; }
+.f-justify-center { justify-content: center; }
+.f-align-center { align-items: center; }
+
+
+.gap-sm {gap: var(--spacing-small);}
+.gap-md {gap: var(--spacing-medium);}
+.gap-lg {gap: var(--spacing-large);}
+
 /* ========== DISPLAY ========== */
 
 .display-large {

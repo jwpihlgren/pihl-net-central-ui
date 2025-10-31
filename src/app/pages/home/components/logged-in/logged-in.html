@@ -45,7 +45,6 @@ No weather forecast
   <thead>
     <tr>
       <th>Dag</th>
-      <th></th>
       <th>Temperatur</th>
       <th>Vind</th>
       <th>Nederbörd</th>
@@ -55,10 +54,13 @@ No weather forecast
   @let r = d.daily;
   <tr [attr.data-master-row-id]=" $index" (click)="toggleDetailsRow($event)" class="hover:bg-base-300">
     <td>{{r.date | date}}</td>
-    <td><app-weather-icon [iconIndex]="+r.weatherSymbol"></app-weather-icon></td>
-    <td>{{r.temperatureMin| number: "1.0-0"}} / {{r.temperatureMax| number: "1.0-0"}}</td>
-    <td>{{r.windFromDirection}} {{r.windSpeed | number: "1.0-0"}} ({{r.windGust | number: "1.0-0"}})</td>
-    <td>{{r.percipitationMin | number: "1.1-1"}}-{{r.percipitationMax | number: "1.1-1"}}
+    <td class="flex f-row f-align-center gap-md">
+      <app-weather-icon [iconIndex]="+r.weatherSymbol"></app-weather-icon>
+      {{r.temperatureMin| number: "1.0-0"}}° / {{r.temperatureMax| number: "1.0-0"}}° C
+    </td>
+    <td>{{r.windFromDirectionAsCompassHeading}} {{r.windSpeed | number: "1.0-0"}} ({{r.windGust | number: "1.0-0"}}) m/s
+    </td>
+    <td>{{r.percipitationMin | number: "1.1-1"}}-{{r.percipitationMax | number: "1.1-1"}} mm
     </td>
   </tr>
   <tr [attr.data-detail-row-id]="$index" [ngClass]="{'open': openDetailsRow() === $index}">
@@ -67,7 +69,6 @@ No weather forecast
         <thead>
           <tr>
             <td>Timme</td>
-            <td></td>
             <td>Temperatur</td>
             <td>Känns som</td>
             <td>Vind</td>
@@ -80,9 +81,11 @@ No weather forecast
         @for(rh of d.hourly; track $index) {
         <tr>
           <td>{{rh.time| date: "HH:mm"}}</td>
-          <td><app-weather-icon [iconIndex]="+rh.weatherSymbol"></app-weather-icon></td>
-          <td>{{rh.temperature | number: "1.0-0"}} C</td>
-          <td>{{rh.temperatureFeelsLike| number: "1.0-0"}} C </td>
+          <td class="flex f-row f-align-center gap-md">
+            <app-weather-icon [iconIndex]="+rh.weatherSymbol"></app-weather-icon>
+            {{rh.temperature | number: "1.0-0"}}° C
+          </td>
+          <td>{{rh.temperatureFeelsLike| number: "1.0-0"}}° C </td>
           <td>{{rh.windFromDirectionAsCompassHeading}} {{rh.windSpeed | number: "1.0-0" }} ({{rh.windGust | number:
             "1.0-0"}}) m/s
           </td>

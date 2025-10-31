@@ -72,7 +72,8 @@ export class SmhiWeatherForecast implements WeatherForecast {
       temperatureMax: Math.max(...parametersAggregated.air_temperature),
       temperatureMin: Math.min(...parametersAggregated.air_temperature),
       weatherSymbol: this.findMostCommonOccurance(parametersAggregated.symbol_code),
-      windFromDirection: this.findMostCommonOccurance(parametersAggregated.wind_from_direction),
+      windFromDirectionAsNumber: this.findMostCommonOccurance(parametersAggregated.wind_from_direction),
+      windFromDirectionAsCompassHeading: this.compassDirection(this.findMostCommonOccurance(parametersAggregated.wind_from_direction)),
       windGust: Math.max(...parametersAggregated.wind_speed_of_gust),
       windSpeed: this.findMostCommonOccurance(parametersAggregated.wind_speed)
     }

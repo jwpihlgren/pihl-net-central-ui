@@ -24,7 +24,8 @@ export interface DailyWeather {
   weatherSymbol: number
   temperatureMin: number
   temperatureMax: number
-  windFromDirection: number
+  windFromDirectionAsNumber: number
+  windFromDirectionAsCompassHeading: string
   windSpeed: number
   windGust: number
   percipitationMin: number
