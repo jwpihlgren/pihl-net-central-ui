@@ -1,28 +1,7 @@
 :host {
   display: grid;
   gap: var(--spacing-large);
+  padding: var(--spacing-large);
 }
 
-[data-detail-row-id] {
-  display: none;
-}
 
-[data-detail-row-id].open {
-  display: table-row;
-}
-
-[data-master-row-id] {
-  cursor: pointer;
-}
-
-[data-master-row-id].open {
-  background: var(--clr-surface-elevation-2);
-}
-
-[data-master-row-id].open:hover {
-  background: var(--clr-surface-elevation-3);
-}
-
-.table-inner {
-  background: var(--clr-surface-elevation-2);
-}

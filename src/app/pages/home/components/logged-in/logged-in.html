@@ -40,67 +40,9 @@ No weather forecast
 @else {
 @let w = weatherForecastResource.value()!;
 
-<app-range-bar-chart [options]=weatherForecastAsData(w) [labelIcons]=weatherForecastAsIcons(w)></app-range-bar-chart>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Dag</th>
-      <th>Temperatur</th>
-      <th>Vind</th>
-      <th>Nederbörd</th>
-    </tr>
-  </thead>
-  @for(d of w.days; track $index) {
-  @let r = d.daily;
-  <tr [attr.data-master-row-id]=" $index" (click)="toggleDetailsRow($event)"
-    [ngClass]="{'open': openDetailsRow() === $index}" class="hover:bg-base-300">
-    <td>{{r.date | date}}</td>
-    <td class="flex f-row f-align-center gap-md">
-      <app-weather-icon [iconIndex]="+r.weatherSymbol"></app-weather-icon>
-      {{r.temperatureMin| number: "1.0-0"}}° / {{r.temperatureMax| number: "1.0-0"}}° C
-    </td>
-    <td>{{r.windFromDirectionAsCompassHeading}} {{r.windSpeed | number: "1.0-0"}} ({{r.windGust | number: "1.0-0"}}) m/s
-    </td>
-    <td>{{r.percipitationMin | number: "1.1-1"}}-{{r.percipitationMax | number: "1.1-1"}} mm
-    </td>
-  </tr>
-  <tr [attr.data-detail-row-id]="$index" [ngClass]="{'open': openDetailsRow() === $index}">
-    <td [colSpan]="5">
-      <table class="table table-xs table-inner">
-        <thead>
-          <tr>
-            <td>Timme</td>
-            <td>Temperatur</td>
-            <td>Känns som</td>
-            <td>Vind</td>
-            <td>Nederbörd</td>
-            <td>Luftfuktighet</td>
-            <td>Barometer</td>
-            <td>Sikt</td>
-          </tr>
-        </thead>
-        @for(rh of d.hourly; track $index) {
-        <tr>
-          <td>{{rh.time| date: "HH:mm"}}</td>
-          <td class="flex f-row f-align-center gap-md">
-            <app-weather-icon [iconIndex]="+rh.weatherSymbol"></app-weather-icon>
-            {{rh.temperature | number: "1.0-0"}}° C
-          </td>
-          <td>{{rh.temperatureFeelsLike| number: "1.0-0"}}° C </td>
-          <td>{{rh.windFromDirectionAsCompassHeading}} {{rh.windSpeed | number: "1.0-0" }} ({{rh.windGust | number:
-            "1.0-0"}}) m/s
-          </td>
-          <td>{{rh.percipitationMin}}-{{rh.percipitationMax}}mm ({{rh.percipitationProbability}} %)</td>
-          <td>{{rh.relativeHumidity}} %</td>
-          <td>{{rh.airPressure | number: "1.0-0"}} bar</td>
-          <td>{{rh.visibility | number: "1.0-0"}} km</td>
-        </tr>
-        }
-      </table>
-    </td>
-  </tr>
+<app-range-bar-chart class="card p-8" [options]=weatherForecastAsData(w)
+  [labelIcons]=weatherForecastAsIcons(w)>
+</app-range-bar-chart>
 
-  }
-</table>
-
+<app-daily-weather-table class="card bg-base-100 p-8" [forecast]="w"></app-daily-weather-table>
 }
