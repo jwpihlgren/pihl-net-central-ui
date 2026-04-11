@@ -13,7 +13,7 @@ export class SmhiWeatherForecast implements WeatherForecast {
     const timeSeriesGroupedByDate: Partial<Record<string, SMHIForecastTimeSerie[]>> = Object.groupBy(raw.timeSeries, ({ time }) => {
       const date = new Date(time)
       const year = date.getFullYear()
-      const month = date.getMonth()
+      const month = date.getMonth() + 1
       const day = date.getDate()
       return new Date(`${year}-${month}-${day}`).toString()
     })

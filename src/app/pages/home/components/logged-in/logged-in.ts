@@ -40,10 +40,12 @@ export class LoggedIn {
       series: [
         {
           name: "Temperature",
-          data: forecast.days.map(d => ({
-            x: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            y: [Math.round(d.daily.temperatureMin), Math.round(d.daily.temperatureMax) + 0.1]
-          }))
+          data: forecast.days.map(d => {
+            return {
+              x: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+              y: [Math.round(d.daily.temperatureMin), Math.round(d.daily.temperatureMax) + 0.1]
+            }
+          })
         }
       ],
       yaxis: {

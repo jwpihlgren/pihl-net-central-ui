@@ -2,6 +2,5 @@
   display: grid;
   gap: var(--spacing-large);
   padding: var(--spacing-large);
+  max-width: 1080px;
 }
-
-

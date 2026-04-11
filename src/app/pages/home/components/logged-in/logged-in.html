@@ -40,9 +40,15 @@ No weather forecast
 @else {
 @let w = weatherForecastResource.value()!;
 
-<app-range-bar-chart class="card p-8" [options]=weatherForecastAsData(w)
-  [labelIcons]=weatherForecastAsIcons(w)>
-</app-range-bar-chart>
+<div class="card bg-base-100">
+  <span class="">Temperatur och väder</span>
+  <app-range-bar-chart class="card p-8" [options]=weatherForecastAsData(w) [labelIcons]=weatherForecastAsIcons(w)>
+  </app-range-bar-chart>
 
-<app-daily-weather-table class="card bg-base-100 p-8" [forecast]="w"></app-daily-weather-table>
+</div>
+
+<section class="card bg-base-100">
+  <span>Dag för dag</span>
+  <app-daily-weather-table class="card bg-base-100 p-8" [forecast]="w"></app-daily-weather-table>
+</section>
 }

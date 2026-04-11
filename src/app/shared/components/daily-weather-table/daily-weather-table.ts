@@ -16,6 +16,7 @@ export class DailyWeatherTable {
   openDetailsRow = signal<number | undefined>(undefined)
 
   toggleDetailsRow(event: Event) {
+    console.log(this.forecast())
     const element = event.currentTarget as HTMLElement
     let rowId: number | undefined = parseInt(element.getAttribute("data-master-row-id") || "")
     if (isNaN(rowId)) rowId = undefined

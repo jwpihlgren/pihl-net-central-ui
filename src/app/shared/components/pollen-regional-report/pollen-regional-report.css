@@ -45,10 +45,37 @@
 
 .pollen-levels {
   display: flex;
+  flex-direction: column;
   gap: var(--spacing-medium);
+  max-width: 100%;
+
+  @media (min-width: 1080px) {
+    flex-direction: row;
+    justify-content: center;
+  }
 }
 
-.pollen-level {}
+.pollen-level {
+
+  max-width: var(--max-width-pollen-level-gauge);
+  overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: flex-start;
+  gap: var(--spacing-small);
+
+  @media (min-width: 1080px) {
+
+    max-width: var(--max-width-pollen-level-gauge);
+    overflow-wrap: anywhere;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: flex-start;
+    gap: var(--spacing-small);
+  }
+}
 
 /*
  * Pollen level gauge settings
@@ -94,7 +121,12 @@
   border-radius: var(--radius-pollen-level-gauge);
   padding: var(--padding-pollen-level-gauge);
   width: 100%;
-  min-height: var(--height-pollen-level-gauge)
+  min-height: var(--height-pollen-level-gauge);
+
+  @media (max-width: 1080px) {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 /*
@@ -128,59 +160,35 @@
   text-align: center;
 }
 
-@media (min-width: 1080px) {
-  .pollen-levels {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .pollen-level {
-    max-width: var(--max-width-pollen-level-gauge);
-    overflow-wrap: anywhere;
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    justify-content: flex-start;
-    gap: var(--spacing-small);
-  }
-
-  .pollen-level-gauge {
-    min-width: var(--max-width-pollen-level-gauge);
-    max-width: var(--max-width-pollen-level-gauge);
-    height: calc((var(--height-pollen-level-indicator) * var(--number-of-indicator-in-gauge)) + (5 * var(--margin-pollen-level-indicator)));
-    flex-direction: column;
-    transform: rotate(180deg);
-  }
-
-  .pollen-level-indicator {
-    width: 100%;
-    max-width: initial;
-  }
-
-  .pollen-level-indicator:nth-of-type(even) {
-    margin: 0;
-    margin-block-end: var(--margin-pollen-level-indicator);
-  }
-
-  .pollen-level-indicator:nth-of-type(1) {
-    border-radius: 0;
-    border-top-left-radius: var(--radius-pollen-level-indicator);
-    border-top-right-radius: var(--radius-pollen-level-indicator);
-  }
-
-  .pollen-level-indicator:nth-of-type(8) {
-    margin: 0;
-    margin-block-end: 0;
-    border-radius: 0;
-    border-bottom-left-radius: var(--radius-pollen-level-indicator);
-    border-bottom-right-radius: var(--radius-pollen-level-indicator);
-  }
-
-  .pollen-level-name {
-    text-wrap: balance;
-  }
-
+.pollen-level-indicator {
+  width: 100%;
+  max-width: initial;
 }
+
+
+.pollen-level-indicator:nth-of-type(even) {
+  margin: 0;
+  margin-block-end: var(--margin-pollen-level-indicator);
+}
+
+.pollen-level-indicator:nth-of-type(1) {
+  border-radius: 0;
+  border-top-left-radius: var(--radius-pollen-level-indicator);
+  border-top-right-radius: var(--radius-pollen-level-indicator);
+}
+
+.pollen-level-indicator:nth-of-type(8) {
+  margin: 0;
+  margin-block-end: 0;
+  border-radius: 0;
+  border-bottom-left-radius: var(--radius-pollen-level-indicator);
+  border-bottom-right-radius: var(--radius-pollen-level-indicator);
+}
+
+.pollen-level-name {
+  text-wrap: balance;
+}
+
 
 /*
  * Footer
@@ -235,6 +243,8 @@
 
 
 .button-group {
+  max-width: 100%;
   display: flex;
   gap: var(--spacing-medium);
+  flex-wrap: wrap;
 }
