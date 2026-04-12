@@ -5,7 +5,6 @@ import { environment } from '../../../environments/environment';
 import { SmhiWeatherForecast } from '../models/classes/smhi-weather-forecast';
 import { WeatherForecast } from '../models/interfaces/weather-forecast.interface';
 import { WeatherForecastRegionAutoComplete } from '../models/interfaces/weather-forecast-region-autocomplete.interface';
-import { EMPTY } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'

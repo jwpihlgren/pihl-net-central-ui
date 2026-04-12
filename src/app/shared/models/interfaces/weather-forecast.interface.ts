@@ -3,7 +3,6 @@ export interface WeatherForecast {
   coordinates: WeatherForecastCoordinates[]
   createdDate: Date,
   referenceDate: Date
-
   days: WeatherForecastDay[]
 }
 
