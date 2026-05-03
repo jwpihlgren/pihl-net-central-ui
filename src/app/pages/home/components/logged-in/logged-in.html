@@ -1,15 +1,15 @@
 <div class="card bg-base-100 p-8">
-  @if(forecastResource.status() === "loading") {
+  @if(pollenForecastResource.status() === "loading") {
   Loading
   }
-  @else if(forecastResource.status() === "error") {
-  Error {{forecastResource.error()}}
+  @else if(pollenForecastResource.status() === "error") {
+  Error {{pollenForecastResource.error()}}
   }
-  @else if (forecastResource.hasValue() && forecastResource.value() === undefined) {
+  @else if (pollenForecastResource.hasValue() && pollenForecastResource.value() === undefined) {
   No forecast
   }
   @else {
-  <app-pollen-regional-report [forecast]="forecastResource.value()!"></app-pollen-regional-report>
+  <app-pollen-regional-report [forecast]="pollenForecastResource.value()!"></app-pollen-regional-report>
   }
 
 
@@ -28,27 +28,45 @@
 </div>
 
 
-@if(weatherForecastResource.status() === "loading") {
+@if(weatherResource.isLoading()) {
 Loading
 }
-@else if(weatherForecastResource.status() === "error") {
-Error {{weatherForecastResource.error()}}
+@else if(weatherResource.error()) {
+Error
+<span>{{weatherResource.error()!.cause}}</span>
+<span>{{weatherResource.error()!.message}}</span>
+<span>{{weatherResource.error()!.name}}</span>
+
+
 }
-@else if (weatherForecastResource.hasValue() && weatherForecastResource.value === undefined) {
-No weather forecast
+@else if (!weatherResource.hasValue()) {
+No weather forecast here
 }
 @else {
-@let w = weatherForecastResource.value()!;
+@let summary = weatherResource.summaryMultipleDayForecast();
 
 <div class="card bg-base-100">
-  <span class="">Temperatur och väder</span>
-  <app-range-bar-chart class="card p-8" [options]=weatherForecastAsData(w) [labelIcons]=weatherForecastAsIcons(w)>
-  </app-range-bar-chart>
-
+  @if(summary === undefined) {
+  summary is undefined
+  }
+  @else {
+  @for(d of summary.dates; track $index) {
+  <span>
+    {{d.date}}
+  </span>
+  }
+  }
 </div>
 
-<section class="card bg-base-100">
-  <span>Dag för dag</span>
-  <app-daily-weather-table class="card bg-base-100 p-8" [forecast]="w"></app-daily-weather-table>
-</section>
+<!-- <div class="card bg-base-100"> -->
+<!--   <span class="">Temperatur och väder</span> -->
+<!--   <app-range-bar-chart class="card p-8" [options]=weatherForecastAsData(w) [labelIcons]=weatherForecastAsIcons(w)> -->
+<!--   </app-range-bar-chart> -->
+<!---->
+<!-- </div> -->
+<!---->
+<!-- <section class="card bg-base-100"> -->
+<!--   <span>Dag för dag</span> -->
+<!--   <app-daily-weather-table class="card bg-base-100 p-8" [forecast]="w"></app-daily-weather-table> -->
+<!-- </section> -->
 }

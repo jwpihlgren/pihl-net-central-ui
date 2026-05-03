@@ -1,13 +1,10 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { Coordinates, SummaryDayForecast, SummaryMultipleDayForecast, WeatherAdapter, WeatherForecast } from './weather.interface';
-import { httpResource } from '@angular/common/http';
-import { environment } from '../../../environments/environment.development';
+import { computed, inject, Injectable, } from '@angular/core';
+import { Coordinates, SummaryDayForecast, SummaryMultipleDayForecast, WeatherForecast } from './weather.interface';
 import { WEATHER_ADAPTER_TOKEN } from './weather.token';
 
 @Injectable()
 export class WeatherService {
 
-  private point = signal<Coordinates | undefined>(undefined)
   private adapter = inject(WEATHER_ADAPTER_TOKEN)
 
   private forecast = computed(() => {
@@ -16,7 +13,9 @@ export class WeatherService {
   })
 
   isLoading = this.adapter.resource.isLoading
+  hasValue = computed(() => this.adapter.resource.hasValue())
   error = this.adapter.resource.error
+
 
   summaryMultipleDayForecast = computed(() => {
     const forecast = this.forecast()
@@ -34,13 +33,14 @@ export class WeatherService {
   }
 
   setPoint(point: Coordinates) {
-    this.point.set(point)
+    this.adapter.setPoint(point)
   }
 
 
   private toSummaryForecast(forecast: WeatherForecast): SummaryMultipleDayForecast {
     const dates = forecast.data.reduce((acc, cur) => {
-      const date: string = new Date(`${cur.time.getFullYear()}-${cur.time.getMonth()}-${cur.time.getDate()}`).toDateString()
+      const d = new Date(cur.time)
+      const date: string = new Date(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`).toDateString()
       const temp = cur.airTemperature
       if (!acc[date]) {
         acc[date] =

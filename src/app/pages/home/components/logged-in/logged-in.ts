@@ -2,34 +2,41 @@ import { Component, computed, inject, signal, } from '@angular/core';
 import { Pollen } from '../../../../shared/services/pollen';
 import { PollenRegionalReport } from '../../../../shared/components/pollen-regional-report/pollen-regional-report';
 import { HassTempSensorService } from '../../../../shared/services/hass-temp-sensor.service';
-import { WeatherService } from '../../../../shared/services/weather.service';
 import { DecimalPipe } from '@angular/common';
 import { ChartOptions, RangeBarChart } from '../../../../shared/components/range-bar-chart/range-bar-chart';
 import { WeatherForecast } from '../../../../shared/models/interfaces/weather-forecast.interface';
 import { DailyWeatherTable } from '../../../../shared/components/daily-weather-table/daily-weather-table';
+import { WeatherService } from '@app/features/weather/weather.service';
+import { WEATHER_ADAPTER_TOKEN } from '@app/features/weather';
+import { SMHIWeatherAdapter } from '@app/shared/adapters/smhi/smhi-weather.adapter';
 
 
 @Component({
   selector: 'app-logged-in',
   imports: [PollenRegionalReport, DecimalPipe, RangeBarChart, DailyWeatherTable],
   templateUrl: './logged-in.html',
-  styleUrl: './logged-in.css'
+  styleUrl: './logged-in.css',
+  providers: [
+    WeatherService,
+    { provide: WEATHER_ADAPTER_TOKEN, useClass: SMHIWeatherAdapter }
+  ]
 })
 export class LoggedIn {
   pollenService = inject(Pollen)
   hassTempSensorService = inject(HassTempSensorService)
-  weatherService = inject(WeatherService)
-  forecastResource
+  weatherResource = inject(WeatherService)
+  pollenForecastResource
   hassTemperatureResource
   hassTemperature = computed(() => this.hassTemperatureResource.value())
-  weatherForecastResource = this.weatherService.forecastByCoordinates({ lat: 57.716666, lon: 11.966666 })
+  //{ lat: 57.716666, lon: 11.966666 }
 
   iconPaths = iconPaths
 
   constructor() {
-    this.forecastResource = this.pollenService.forecast
+    this.pollenForecastResource = this.pollenService.forecast
     this.hassTemperatureResource = this.hassTempSensorService.temperature
-    this.pollenService.forecastByRegionId()
+    this.weatherResource.setPoint({ lat: 57.716666, lon: 11.966666 }
+    )
   }
 
   weatherForecastAsData(forecast: WeatherForecast): Partial<ChartOptions> {

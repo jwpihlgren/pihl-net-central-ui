@@ -4,7 +4,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "@app/*": ["src/app/*"]
+      "@app/*": ["./src/app/*"]
     },
     "strict": true,
     "noImplicitOverride": true,

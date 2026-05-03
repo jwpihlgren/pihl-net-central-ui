@@ -3,7 +3,6 @@ import { Injectable, signal } from "@angular/core"
 import { environment } from "../../../../environments/environment.development"
 import { WeatherForecast, WeatherAdapter, Coordinates } from "@app/features/weather"
 import { SMHIWeatherForecastResponse } from "./smhi-weather.interface"
-import { SmhiWeatherForecast } from "@app/shared/models/classes/smhi-weather-forecast"
 
 @Injectable()
 export class SMHIWeatherAdapter implements WeatherAdapter {
@@ -14,17 +13,20 @@ export class SMHIWeatherAdapter implements WeatherAdapter {
     const point = this.point()
     if (!point) return undefined
     let url = `${environment.smhi.url}`
-    url.concat(environment.smhi.endpoints.weatherForecastPoint)
-    url.concat(`lon/${point.lon}/lat/${point.lat}/data.json`)
-    return `${environment.smhi.url}${environment.smhi.endpoints.weatherForecastPoint}`
+    url += environment.smhi.endpoints.weatherForecastPoint
+    url += `/lon/${point.lon}/lat/${point.lat}/data.json`
+    console.log(url)
+    return url
   }, {
-    parse: (response: SMHIWeatherForecastResponse): WeatherForecast => {
-      const [lat, lon] = response.geometry.coordinates[0]
+    parse: (response): WeatherForecast => {
+      const r = response as SMHIWeatherForecastResponse
+      console.log(r.geometry.coordinates)
+      const [lat, lon] = r.geometry.coordinates
       const forecast: WeatherForecast = {
         coordinates: { lat: lat, lon: lon },
-        createdDate: response.createdTime,
-        referenceDate: response.referenceTime,
-        data: response.timeSeries.map(t => ({
+        createdDate: r.createdTime,
+        referenceDate: r.referenceTime,
+        data: r.timeSeries.map(t => ({
           time: t.time,
           airTemperature: t.data.air_temperature,
           weatherSymbol: t.data.symbol_code.toString(),

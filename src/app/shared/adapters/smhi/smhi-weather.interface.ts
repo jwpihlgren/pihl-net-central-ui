@@ -4,10 +4,8 @@ export interface SMHIWeatherForecastResponse {
   geometry: {
     type: string
     coordinates: [
-      [
-        number,
-        number
-      ]
+      number,
+      number
     ]
   },
   timeSeries: SMHIForecastTimeSerie[]
